@@ -1,7 +1,11 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, collection, getDocs } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
+
+//get collections
+
+
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -17,3 +21,9 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
+
+
+export async function getRecommendedCategories() {
+  const querySnapshot = await getDocs(collection(db, 'recommendedCategories'));
+  return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+}
