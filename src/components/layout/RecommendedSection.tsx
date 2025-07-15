@@ -82,29 +82,45 @@ export default function RecommendedSection() {
         <h2 className="text-3xl font-semibold mb-2">Recommended For You</h2>
         <p className="text-gray-600 mb-8">Listings we think you'll love</p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 ">
           {homes.map((home) => (
-            <div key={home.id} className="bg-white rounded shadow hover:shadow-md transition overflow-hidden ring-2 ring-white hover:ring-blue-500">
+            <div key={home.id} className="bg-white rounded shadow hover:shadow-md transition overflow-hidden ring-2 ring-white hover:ring-blue-500 relative h-64">
               <img
                 src={home.mainImage || "/placeholder.jpg"}
                 alt={home.title || "Property"}
-                className="w-full h-48 object-cover"
+                className="w-full h-full object-cover absolute inset-0  " //full cover of pic on card 
               />
-              <div className="p-4">
-                <h3 className="text-xl font-semibold mb-2">{home.title || "Untitled Property"}</h3>
-                <p className="text-blue-600 font-bold mb-1">
+              <div className="relative z-10 bg-gradient-to-t from-black/70 via-black/30 to-transparent h-full flex flex-col justify-end p-2">
+                <p className="text-white text-2xl font-bold ">
                   ${home.price ? home.price.toLocaleString() : "Price not available"}
                 </p>
-                <p className="text-sm text-gray-700 mb-1">{home.address || "Address not available"}</p>
-                <p className="text-sm text-gray-600">
-                  {home.beds || 0} bd | {home.baths || 0} ba | {home.sqft ? home.sqft.toLocaleString() : 0} sqft
-                </p>
+
+                <div className="flex justify-between items-end text-white">
+                  <p className="text-sm ">{home.address || "Address not available"}</p>
+                  <div className="flex gap-2 divide-x divide-gray-400 ">
+
+                    <div className="flex flex-col items-center pr-1">
+                      <span className="text-sm font-medium">{home.beds || 0}</span>
+                      <span className="text-xs">Beds</span>
+                    </div>
+
+                    <div className="flex flex-col items-center pr-1">
+                      <span className="text-sm font-medium ">{home.baths || 0}</span>
+                      <span className="text-xs">Baths</span>
+                    </div>
+
+                    <div className="flex flex-col items-center">
+                      <span className="text-sm font-medium">{home.sqft ? home.sqft.toLocaleString() : 0}</span>
+                      <span className="text-xs">Sq Ft</span>
+                    </div>
+                  </div>
+                </div>
                 {home.virtualTourUrl && (
                   <a
                     href={home.virtualTourUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-blue-500 hover:underline block mt-1"
+                    className="text-sm text-blue-300 hover:text-blue-200 hover:underline block mt-1"
                   >
                     Virtual Tour Available
                   </a>
@@ -127,7 +143,7 @@ export default function RecommendedSection() {
 
         <div className="absolute mt-6 flex justify-center items-center bg-blue-600 mb-4 mt-4 rounded hover:bg-blue-800">
           <Link href={"/#"} className="rounded">
-            <h1 className="text-xl p-2 text-white relative after:content-['→'] after:ml-3 after:text-2xl after:inline-block hover:after:translate-x-1 after:transition-transform">
+            <h1 className="text-xl p-2 text-white relative after:content-['→'] after:ml-3 after:text-2xl after:inline-block hover:after:translate-x-1 after:transition-transform pr-4">
               View More Properties
             </h1>
           </Link>

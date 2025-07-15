@@ -1,5 +1,7 @@
 import RecommendedSection from "@/components/layout/RecommendedSection";
 import Hero from "../components/layout/Hero";
+import InfoCards from "@/components/layout/InfoCards";
+import Neighborhoods from "@/components/layout/Neighborhoods";
 
 export default function Home() {
   return (
@@ -8,6 +10,12 @@ export default function Home() {
       <Hero/>
 
       <RecommendedSection/>
+
+      <InfoCards/>
+
+      <Neighborhoods/>
+
+
     
 
       {/* Hero should be full width too */}
@@ -15,7 +23,7 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="max-w-screen-xl mx-auto px-4 sm:px-8 py-12">
-        <h1 className="text-3xl font-semibold mb-6">Coming soon!</h1>
+        <h1 className="text-3xl font-semibold mt-9">Coming Soon</h1>
         {/* More content here */}
       </main>
     </div>
