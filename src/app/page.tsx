@@ -2,6 +2,7 @@ import RecommendedSection from "@/components/layout/RecommendedSection";
 import Hero from "../components/layout/Hero";
 import InfoCards from "@/components/layout/InfoCards";
 import Neighborhoods from "@/components/layout/Neighborhoods";
+import ContactForm from "@/components/layout/ContactForm";
 
 export default function Home() {
   return (
@@ -16,7 +17,7 @@ export default function Home() {
       <Neighborhoods/>
 
 
-    
+      <ContactForm/>
 
       {/* Hero should be full width too */}
       
