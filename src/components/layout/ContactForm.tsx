@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
-import { db } from '@/lib/firebase' 
+// import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
+// import { db } from '@/lib/firebase' 
 
 export default function ContactForm() {
     const [formData, setFormData] = useState({
@@ -144,14 +144,14 @@ export default function ContactForm() {
                         </svg>
                     </div>
                     <h2 className="text-2xl font-bold text-gray-800 mb-2">Thank you!</h2>
-                    <p className="text-gray-600">We'll connect you with a local expert shortly.</p>
+                    <p className="text-gray-600">We&apos;ll connect you with a local expert shortly.</p>
                 </div>
             </div>
         )
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-4 flex items-center justify-center">
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-4 flex items-center justify-center mt-6">
             <div className="w-full max-w-2xl">
                 {/* Header */}
                 <div className="text-center mb-8">
@@ -159,7 +159,7 @@ export default function ContactForm() {
                         Talk to a Local Expert
                     </h1>
                     <p className="text-gray-300 text-lg">
-                        You'll be connected with a local agent — there's no pressure or obligation.
+                        You&apos;ll be connected with a local agent — there&apos;s no pressure or obligation.
                     </p>
                 </div>
 

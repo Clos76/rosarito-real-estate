@@ -1,6 +1,7 @@
 "use client"
 
 import Link from 'next/link'
+import Image from 'next/image';
 
 // Define the neighborhood data type
 interface Neighborhood {
@@ -76,11 +77,13 @@ const neighborhoods: Neighborhood[] = [
 function NeighborhoodCard({ neighborhood }: { neighborhood: Neighborhood }) {
     return (
         <div className="w-full h-64 relative overflow-hidden rounded shadow-lg hover:shadow-2xl hover:scale-105 hover:-translate-y-2 transition-all duration-300 ease-in-out">
-            <img
+            <Image
                 src={neighborhood.image}
                 alt={neighborhood.alt}
+                fill
                 className="w-full h-full object-cover brightness-60"
             />
+
             <Link
                 href={neighborhood.href}
                 className="absolute inset-0 transition-all duration-300 flex items-center justify-center"
@@ -95,7 +98,7 @@ function NeighborhoodCard({ neighborhood }: { neighborhood: Neighborhood }) {
 
 export default function Neighborhoods() {
     return (
-        <div className="w-full">
+        <div className="w-full py-8 px-4">
             <div className='max-w-6xl mx-auto pt-4'>
                 <section>
                     <h1 className='font-medium text-3xl'>Find the Neighborhood For You</h1>
@@ -110,14 +113,15 @@ export default function Neighborhoods() {
                     </div>
 
                 </section>
-                <div className="absolute mt-6 flex justify-center items-center bg-blue-600 mb-4 mt-4 rounded hover:bg-blue-800 ">
-                    <Link href={"/#"} className="rounded">
-                        <h1 className="text-xl p-2 text-white relative after:content-['→'] after:ml-3 after:text-2xl after:inline-block hover:after:translate-x-1 after:transition-transform pr-4">
+                <div className="mt-6 flex justify-start ">
+                    <Link href={"/#"} className="rounded bg-blue-600 hover:bg-blue-800 px-4 py-2">
+                        <h1 className="text-xl p-2 text-white relative after:content-['→'] after:ml-3 after:text-2xl after:inline-block hover:after:translate-x-1 after:transition-transform pr-4 w-auto">
                             View Beachfront House Developements
                         </h1>
                     </Link>
                 </div>
             </div>
         </div>
+        
     );
 }

@@ -7,6 +7,8 @@ import { storage, db } from "@/lib/firebase";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useAuth } from "@/lib/auth-context";
+import Image from "next/image";
+import Link from "next/link";
 
 function UploadForm() {
   const { user, logout } = useAuth();
@@ -202,7 +204,7 @@ function UploadForm() {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {previews.map((preview, index) => (
               <div key={index} className="relative">
-                <img 
+                <Image
                   src={preview} 
                   alt={`Preview ${index + 1}`} 
                   className="w-full h-32 object-cover rounded border"
@@ -253,7 +255,10 @@ function UploadForm() {
               
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
             >
-              <a href="/">Back</a>
+              <Link href="/">
+              Back
+              </Link>
+              
             </button>
           </div>
     </div>
