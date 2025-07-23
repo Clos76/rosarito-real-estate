@@ -4,10 +4,20 @@
 // import Neighborhoods from "@/components/layout/Neighborhoods";
 // import ContactForm from "@/components/layout/ContactForm";
 import Head from "next/head";
+// import Footer from "@/components/layout/Footer";
+//  <Hero/>
+//        <RecommendedSection/>
+//       <InfoCards/>
+//       <Neighborhoods />
+//       <ContactForm />
+//       <Footer/>
 
 export default function Home() {
   return (
-     <>
+    <>
+     
+     
+
       <Head>
         <title>Rosarito Real Estate - Coming Soon</title>
         <meta name="description" content="Our Rosarito Real Estate site is launching soon. Stay tuned!" />
