@@ -1,22 +1,24 @@
-// import RecommendedSection from "@/components/layout/RecommendedSection";
-// import Hero from "../components/layout/Hero";
-// import InfoCards from "@/components/layout/InfoCards";
-// import Neighborhoods from "@/components/layout/Neighborhoods";
-// import ContactForm from "@/components/layout/ContactForm";
+import RecommendedSection from "@/components/layout/RecommendedSection";
+import Hero from "../components/layout/Hero";
+import InfoCards from "@/components/layout/InfoCards";
+import Neighborhoods from "@/components/layout/Neighborhoods";
+import ContactForm from "@/components/layout/ContactForm";
 import Head from "next/head";
-// import Footer from "@/components/layout/Footer";
-//  <Hero/>
-//        <RecommendedSection/>
-//       <InfoCards/>
-//       <Neighborhoods />
-//       <ContactForm />
-//       <Footer/>
+import Footer from "@/components/layout/Footer";
+import Map from "@/components/Map"
+
 
 export default function Home() {
   return (
     <>
-     
-     
+
+      <Hero />
+      <RecommendedSection />
+      <InfoCards />
+      <Neighborhoods />
+      <ContactForm />
+      <Footer />
+      <Map/>
 
       <Head>
         <title>Rosarito Real Estate - Coming Soon</title>

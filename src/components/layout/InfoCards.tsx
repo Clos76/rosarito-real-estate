@@ -6,38 +6,38 @@ export default function InfoCards() {
             title: "Buy",
             description: "A real estate agent can provide you with a clear breakdown of costs so that you can avoid surprise expenses.",
             buttonText: "Learn More",
-            link: "/why-choose-rr"
+            link: "#"
         },
         {
             title: "Finance a Home",
             description: "Get preapproved so you're ready to make an offer quickly when you find the right home.",
             buttonText: "Get Started",
-            link: "/mortgage"
+            link: "#"
         },
         {
             title: "Sell",
             description: "No matter what path you take to sell your home, we can help you through the process of successfully closing the sale.",
             buttonText: "Start Selling",
-            link: "/sell"
+            link: "#"
         },
         {
             title: "Rent",
             description: "Search for beachfront condos and homes in beachfront communities.",
             buttonText: "Find Rentals",
-            link: "/rent"
+            link: "#"
         },
         {
             title: "For Sale By Owner",
             description: "Tired of spending thousands in commission when you can do it yourself? Try our new for sale by owner platform.",
             buttonText: "Try FSBO",
-            link: "/by-owner"
+            link: "#"
         },
 
         {
             title: "My Home Value",
             description: "Tired of spending thousands in commission when you can do it yourself? Try our new for sale by owner platform.",
             buttonText: "Free Estimate",
-            link: "/estimate"
+            link: "#"
         }
     ];
 

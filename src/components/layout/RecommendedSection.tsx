@@ -84,6 +84,7 @@ export default function RecommendedSection() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 ">
           {homes.map((home) => (
+            <Link key={home.id} href={`/property/${home.id}`}>
             <div key={home.id} className="bg-white rounded shadow hover:shadow-md transition overflow-hidden ring-2 ring-white hover:ring-blue-500 relative h-64">
               <Image
                 src={home.mainImage || "/placeholder.jpg"}
@@ -128,13 +129,14 @@ export default function RecommendedSection() {
                 )}
               </div>
             </div>
+            </Link>
           ))}
 
           {/* Signup card */}
           <div className="flex flex-col justify-center items-center bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded p-6 shadow-md ring-2 ring-white hover:ring-blue-500">
             <h3 className="text-lg font-semibold mb-2">Want 2 more exclusive listings?</h3>
             <p className="text-sm mb-4 text-center">Sign up now to unlock private recommendations.</p>
-            <Link href="/signup">
+            <Link href="#">
               <span className="bg-white text-blue-600 font-semibold px-4 py-2 rounded hover:bg-blue-100 transition">
                 Sign Up
               </span>
