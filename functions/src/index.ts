@@ -21,6 +21,16 @@ async function checkIfAdmin(uid: string): Promise<boolean> {
   }
 }
 
+// Helper function to check if any admins exist
+async function checkIfAnyAdminsExist(): Promise<boolean> {
+  try {
+    const listUsers = await getAuth().listUsers();
+    return listUsers.users.some((user: UserRecord) => user.customClaims?.admin === true);
+  } catch (error) {
+    return false;
+  }
+}
+
 interface SetAdminClaimData {
   uid: string;
 }
@@ -29,28 +39,54 @@ interface GetUserInfoData {
   uid: string;
 }
 
-// Set admin claim (only existing admins can call this)
+// Set admin claim (allows first admin, then requires admin privileges)
 export const setAdminClaim = onCall<SetAdminClaimData>(async (request: CallableRequest<SetAdminClaimData>) => {
   // Check if the caller is authenticated
   if (!request.auth) {
     throw new HttpsError('unauthenticated', 'User must be authenticated');
   }
 
-  // Check if the caller is an admin
-  const isAdmin = await checkIfAdmin(request.auth.uid);
-  if (!isAdmin) {
-    throw new HttpsError('permission-denied', 'Only admins can set admin claims');
-  }
-
-  const {uid} = request.data;
+  const { uid } = request.data;
   if (!uid) {
     throw new HttpsError('invalid-argument', 'UID is required');
   }
 
   try {
-    await getAuth().setCustomUserClaims(uid, {admin: true});
-    return {success: true, message: `Admin claim set for user ${uid}`};
+    // Check if any admins exist
+    const anyAdminsExist = await checkIfAnyAdminsExist();
+    
+    if (anyAdminsExist) {
+      // If admins exist, check if the caller is an admin
+      const isAdmin = await checkIfAdmin(request.auth.uid);
+      if (!isAdmin) {
+        throw new HttpsError('permission-denied', 'Only admins can set admin claims');
+      }
+    } else {
+      // If no admins exist, allow the current user to become the first admin
+      // But only if they're trying to make themselves admin
+      if (uid !== request.auth.uid) {
+        throw new HttpsError('permission-denied', 'For first admin setup, you can only make yourself admin');
+      }
+    }
+
+    // Set admin custom claim
+    await getAuth().setCustomUserClaims(uid, { admin: true });
+    
+    const isFirstAdmin = !anyAdminsExist;
+    const message = isFirstAdmin 
+      ? `First admin created for user ${uid}` 
+      : `Admin claim set for user ${uid}`;
+
+    return { 
+      success: true, 
+      message,
+      isFirstAdmin
+    };
   } catch (error) {
+    console.error('Error in setAdminClaim:', error);
+    if (error instanceof HttpsError) {
+      throw error;
+    }
     throw new HttpsError('internal', 'Failed to set admin claim');
   }
 });
@@ -66,14 +102,22 @@ export const removeAdminClaim = onCall<SetAdminClaimData>(async (request: Callab
     throw new HttpsError('permission-denied', 'Only admins can remove admin claims');
   }
 
-  const {uid} = request.data;
+  const { uid } = request.data;
   if (!uid) {
     throw new HttpsError('invalid-argument', 'UID is required');
   }
 
+  // Prevent removing the last admin
+  const listUsers = await getAuth().listUsers();
+  const adminCount = listUsers.users.filter((user: UserRecord) => user.customClaims?.admin === true).length;
+  
+  if (adminCount <= 1) {
+    throw new HttpsError('permission-denied', 'Cannot remove the last admin');
+  }
+
   try {
-    await getAuth().setCustomUserClaims(uid, {admin: false});
-    return {success: true, message: `Admin claim removed for user ${uid}`};
+    await getAuth().setCustomUserClaims(uid, { admin: false });
+    return { success: true, message: `Admin claim removed for user ${uid}` };
   } catch (error) {
     throw new HttpsError('internal', 'Failed to remove admin claim');
   }
@@ -86,7 +130,7 @@ export const checkAdminStatus = onCall(async (request: CallableRequest) => {
   }
 
   const isAdmin = await checkIfAdmin(request.auth.uid);
-  return {isAdmin};
+  return { isAdmin };
 });
 
 // List all admins (admin only)
@@ -127,7 +171,7 @@ export const getUserInfo = onCall<GetUserInfoData>(async (request: CallableReque
     throw new HttpsError('permission-denied', 'Only admins can get user info');
   }
 
-  const {uid} = request.data;
+  const { uid } = request.data;
   if (!uid) {
     throw new HttpsError('invalid-argument', 'UID is required');
   }

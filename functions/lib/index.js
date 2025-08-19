@@ -21,26 +21,60 @@ async function checkIfAdmin(uid) {
         return false;
     }
 }
-// Set admin claim (only existing admins can call this)
+// Helper function to check if any admins exist
+async function checkIfAnyAdminsExist() {
+    try {
+        const listUsers = await (0, auth_1.getAuth)().listUsers();
+        return listUsers.users.some((user) => user.customClaims?.admin === true);
+    }
+    catch (error) {
+        return false;
+    }
+}
+// Set admin claim (allows first admin, then requires admin privileges)
 exports.setAdminClaim = (0, https_1.onCall)(async (request) => {
     // Check if the caller is authenticated
     if (!request.auth) {
         throw new https_1.HttpsError('unauthenticated', 'User must be authenticated');
-    }
-    // Check if the caller is an admin
-    const isAdmin = await checkIfAdmin(request.auth.uid);
-    if (!isAdmin) {
-        throw new https_1.HttpsError('permission-denied', 'Only admins can set admin claims');
     }
     const { uid } = request.data;
     if (!uid) {
         throw new https_1.HttpsError('invalid-argument', 'UID is required');
     }
     try {
+        // Check if any admins exist
+        const anyAdminsExist = await checkIfAnyAdminsExist();
+        if (anyAdminsExist) {
+            // If admins exist, check if the caller is an admin
+            const isAdmin = await checkIfAdmin(request.auth.uid);
+            if (!isAdmin) {
+                throw new https_1.HttpsError('permission-denied', 'Only admins can set admin claims');
+            }
+        }
+        else {
+            // If no admins exist, allow the current user to become the first admin
+            // But only if they're trying to make themselves admin
+            if (uid !== request.auth.uid) {
+                throw new https_1.HttpsError('permission-denied', 'For first admin setup, you can only make yourself admin');
+            }
+        }
+        // Set admin custom claim
         await (0, auth_1.getAuth)().setCustomUserClaims(uid, { admin: true });
-        return { success: true, message: `Admin claim set for user ${uid}` };
+        const isFirstAdmin = !anyAdminsExist;
+        const message = isFirstAdmin
+            ? `First admin created for user ${uid}`
+            : `Admin claim set for user ${uid}`;
+        return {
+            success: true,
+            message,
+            isFirstAdmin
+        };
     }
     catch (error) {
+        console.error('Error in setAdminClaim:', error);
+        if (error instanceof https_1.HttpsError) {
+            throw error;
+        }
         throw new https_1.HttpsError('internal', 'Failed to set admin claim');
     }
 });
@@ -56,6 +90,12 @@ exports.removeAdminClaim = (0, https_1.onCall)(async (request) => {
     const { uid } = request.data;
     if (!uid) {
         throw new https_1.HttpsError('invalid-argument', 'UID is required');
+    }
+    // Prevent removing the last admin
+    const listUsers = await (0, auth_1.getAuth)().listUsers();
+    const adminCount = listUsers.users.filter((user) => user.customClaims?.admin === true).length;
+    if (adminCount <= 1) {
+        throw new https_1.HttpsError('permission-denied', 'Cannot remove the last admin');
     }
     try {
         await (0, auth_1.getAuth)().setCustomUserClaims(uid, { admin: false });

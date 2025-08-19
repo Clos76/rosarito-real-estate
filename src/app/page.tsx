@@ -5,7 +5,6 @@ import Neighborhoods from "@/components/layout/Neighborhoods";
 import ContactForm from "@/components/layout/ContactForm";
 import Head from "next/head";
 import Footer from "@/components/layout/Footer";
-import Map from "@/components/Map"
 
 
 export default function Home() {
@@ -18,8 +17,7 @@ export default function Home() {
       <Neighborhoods />
       <ContactForm />
       <Footer />
-      <Map/>
-
+    
       <Head>
         <title>Rosarito Real Estate - Coming Soon</title>
         <meta name="description" content="Our Rosarito Real Estate site is launching soon. Stay tuned!" />

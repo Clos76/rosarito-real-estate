@@ -1,23 +1,23 @@
 // lib/admin-functions.ts
-import { httpsCallable, getFunctions, HttpsCallableResult } from "firebase/functions";
-import app from "./firebase"; // your initialized Firebase app
-import { User } from "firebase/auth";
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import type { User } from 'firebase/auth';
 
-// Specify the same region as your deployed Firebase functions
-const functions = getFunctions(app, "us-central1");
+// Initialize functions
+const functions = getFunctions();
 
-// ---------------- Types ----------------
-export interface AdminFunctionResult {
-  message: string;
-  success: boolean;
-  isFirstAdmin?: boolean;
-}
+// Create callable function references
+const setAdminClaimFn = httpsCallable(functions, 'setAdminClaim');
+const removeAdminClaimFn = httpsCallable(functions, 'removeAdminClaim');
+const checkAdminStatusFn = httpsCallable(functions, 'checkAdminStatus');
+const listAdminsFn = httpsCallable(functions, 'listAdmins');
+const getUserInfoFn = httpsCallable(functions, 'getUserInfo');
+const getSystemStatsFn = httpsCallable(functions, 'getSystemStats');
 
 export interface UserInfo {
   uid: string;
   email: string | null;
   displayName?: string | null;
-  customClaims: Record<string, boolean | string | number>;
+  customClaims: Record<string, unknown>;
   isAdmin: boolean;
   emailVerified: boolean;
   disabled: boolean;
@@ -25,125 +25,103 @@ export interface UserInfo {
   lastSignInTime?: string;
 }
 
-export interface AdminListResult {
-  admins: Array<{
-    uid: string;
-    email: string | null;
-    displayName?: string | null;
-    creationTime?: string;
-    lastSignInTime?: string;
-    emailVerified?: boolean;
-  }>;
+export interface AdminUser {
+  uid: string;
+  email: string | null;
+  displayName?: string | null;
 }
 
-export interface SystemStats {
-  totalUsers: number;
-  adminCount: number;
-  verifiedUsers: number;
-  unverifiedUsers: number;
-}
-
-// ---------------- Callable Functions ----------------
-const setAdminClaimFunction = httpsCallable<{ uid: string }, AdminFunctionResult>(functions, "setAdminClaim");
-const removeAdminClaimFunction = httpsCallable<{ uid: string }, AdminFunctionResult>(functions, "removeAdminClaim");
-const getUserInfoFunction = httpsCallable<{ uid: string }, UserInfo>(functions, "getUserInfo");
-const listAdminsFunction = httpsCallable<void, AdminListResult>(functions, "listAdmins");
-const checkAdminStatusFunction = httpsCallable<void, { isAdmin: boolean }>(functions, "checkAdminStatus");
-const getSystemStatsFunction = httpsCallable<void, SystemStats>(functions, "getSystemStats");
-
-// ---------------- Wrappers with Safety ----------------
-function parseError(error: unknown): string {
-  if (error instanceof Error) return error.message;
-  if (typeof error === "object" && error !== null && "message" in error) {
-    return (error as { message?: string }).message || "Unknown error";
-  }
-  return "Unknown error";
-}
-
-/** Make a user admin */
-export async function makeUserAdmin(uid: string): Promise<AdminFunctionResult> {
-  if (!uid) throw new Error("UID is required to make user admin");
+// Make user admin
+export const makeUserAdmin = async (uid: string) => {
   try {
-    const result: HttpsCallableResult<AdminFunctionResult> = await setAdminClaimFunction({ uid });
-    return result.data;
-  } catch (error: unknown) {
-    console.error("makeUserAdmin error:", parseError(error));
+    const result = await setAdminClaimFn({ uid });
+    return result.data as { success: boolean; message: string; isFirstAdmin?: boolean };
+  } catch (error) {
+    console.error('makeUserAdmin error:', error);
     throw error;
   }
-}
+};
 
-/** Remove admin privileges */
-export async function removeUserAdmin(uid: string): Promise<AdminFunctionResult> {
-  if (!uid) throw new Error("UID is required to remove admin");
+// Remove admin privileges
+export const removeUserAdmin = async (uid: string) => {
   try {
-    const result: HttpsCallableResult<AdminFunctionResult> = await removeAdminClaimFunction({ uid });
-    return result.data;
-  } catch (error: unknown) {
-    console.error("removeUserAdmin error:", parseError(error));
+    const result = await removeAdminClaimFn({ uid });
+    return result.data as { success: boolean; message: string };
+  } catch (error) {
+    console.error('removeUserAdmin error:', error);
     throw error;
   }
-}
+};
 
-/** Get specific user's info */
-export async function getUserInfo(uid: string): Promise<UserInfo> {
-  if (!uid) throw new Error("UID is required to get user info");
+// Check if current user is admin
+export const checkIfCurrentUserIsAdmin = async () => {
   try {
-    const result: HttpsCallableResult<UserInfo> = await getUserInfoFunction({ uid });
-    return result.data;
-  } catch (error: unknown) {
-    console.error("getUserInfo error:", parseError(error));
+    const result = await checkAdminStatusFn();
+    const data = result.data as { isAdmin: boolean };
+    return data.isAdmin;
+  } catch (error) {
+    console.error('checkAdminStatus error:', error);
+    return false;
+  }
+};
+
+// Get current user info (this is what your component is calling)
+export const getCurrentUserInfo = async (user: User): Promise<UserInfo> => {
+  try {
+    // Get the user's ID token to check claims
+    const tokenResult = await user.getIdTokenResult();
+    
+    return {
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      customClaims: tokenResult.claims,
+      isAdmin: tokenResult.claims.admin === true,
+      emailVerified: user.emailVerified,
+      disabled: false, // Client-side user objects don't have this info
+      creationTime: user.metadata.creationTime || '',
+      lastSignInTime: user.metadata.lastSignInTime
+    };
+  } catch (error) {
+    console.error('getCurrentUserInfo error:', error);
     throw error;
   }
-}
+};
 
-/** Check if current user is admin */
-export async function checkAdminStatus(): Promise<{ isAdmin: boolean }> {
+// List all admins (admin only)
+export const listAllAdmins = async () => {
   try {
-    const result: HttpsCallableResult<{ isAdmin: boolean }> = await checkAdminStatusFunction();
-    return result.data;
-  } catch (error: unknown) {
-    console.error("checkAdminStatus error:", parseError(error));
-    return { isAdmin: false }; // safe fallback
+    const result = await listAdminsFn();
+    return result.data as { admins: AdminUser[] };
+  } catch (error) {
+    console.error('listAdmins error:', error);
+    throw error;
   }
-}
+};
 
-/** Get current user's info including admin status */
-export async function getCurrentUserInfo(currentUser: User): Promise<UserInfo> {
-  if (!currentUser) throw new Error("No current user provided");
-  
-  const adminStatus = await checkAdminStatus();
-
-  return {
-    uid: currentUser.uid,
-    email: currentUser.email,
-    displayName: currentUser.displayName,
-    customClaims: adminStatus.isAdmin ? { admin: true } : {},
-    isAdmin: adminStatus.isAdmin,
-    emailVerified: currentUser.emailVerified,
-    disabled: false,
-    creationTime: currentUser.metadata?.creationTime || "",
-    lastSignInTime: currentUser.metadata?.lastSignInTime || ""
-  };
-}
-
-/** List all admin users */
-export async function listAllAdmins(): Promise<AdminListResult> {
+// Get user information (admin only)
+export const getUserInformation = async (uid: string) => {
   try {
-    const result: HttpsCallableResult<AdminListResult> = await listAdminsFunction();
-    return result.data;
-  } catch (error: unknown) {
-    console.error("listAllAdmins error:", parseError(error));
-    return { admins: [] };
+    const result = await getUserInfoFn({ uid });
+    return result.data as UserInfo;
+  } catch (error) {
+    console.error('getUserInfo error:', error);
+    throw error;
   }
-}
+};
 
-/** Get system statistics */
-export async function getSystemStats(): Promise<SystemStats> {
+// Get system statistics (admin only)
+export const getSystemStatistics = async () => {
   try {
-    const result: HttpsCallableResult<SystemStats> = await getSystemStatsFunction();
-    return result.data;
-  } catch (error: unknown) {
-    console.error("getSystemStats error:", parseError(error));
-    return { totalUsers: 0, adminCount: 0, verifiedUsers: 0, unverifiedUsers: 0 };
+    const result = await getSystemStatsFn();
+    return result.data as {
+      totalUsers: number;
+      adminCount: number;
+      verifiedUsers: number;
+      unverifiedUsers: number;
+    };
+  } catch (error) {
+    console.error('getSystemStats error:', error);
+    throw error;
   }
-}
+};
