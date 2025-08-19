@@ -21,8 +21,7 @@ export default function PropertyHeader({
   beds,
   baths,
   sqft,
-  propertyType,
-  yearBuilt,
+ 
 }: PropertyHeaderProps) {
   return (
     <section>

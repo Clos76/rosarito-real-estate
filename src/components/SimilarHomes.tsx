@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { collection, query, where, limit, getDocs, QueryDocumentSnapshot, DocumentData } from "firebase/firestore";
+import { collection, query, where, limit, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase"; // your firebase config
 import { formatPrice } from "@/lib/utils";
-import { Property } from "@/app/property/[id]/page";
+import { Property } from "@/app/property/[id]/PropertyInterface";
+import Image from "next/image";
 
 interface SimilarHomesProps {
   currentPropertyId: string;
@@ -58,7 +59,7 @@ const SimilarHomes: React.FC<SimilarHomesProps> = ({ currentPropertyId, property
           <div key={prop.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden">
             <div className="bg-gray-100 h-48 flex items-center justify-center">
               {prop.mainImage ? (
-                <img
+                <Image
                   src={prop.mainImage}
                   alt={prop.title}
                   className="object-cover w-full h-full"

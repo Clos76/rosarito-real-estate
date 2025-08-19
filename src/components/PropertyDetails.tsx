@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { Property } from "@/app/property/[id]/page"; 
+import { Property } from "@/app/property/[id]/PropertyInterface"; 
 import { formatPrice } from "@/lib/utils";
 
 // Climate Risk Badge Component

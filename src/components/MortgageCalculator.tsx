@@ -1,7 +1,5 @@
 import { formatPrice } from "@/lib/utils"
-import { Property } from "@/app/property/[id]/PropertyInterface"
-import React, { useState, useEffect } from 'react';
-import path from "path";
+import React, { useState, useEffect, useCallback } from 'react';
 
 
 //type definitions that be used in pie
@@ -27,7 +25,7 @@ const PieChart: React.FC<PieChartProps> = ({data}) => {
     let currentAngle = -90 //start from top
 
     //calculate percentage of total and corresponding angles in degrees
-   const slices = data.map((item, index)=> {
+   const slices = data.map((item)=> {
     const percentage = (item.value / total) * 100;
     const angle = (item.value / total) * 360;
 
@@ -112,30 +110,30 @@ export default function MortgageCalculator({ price = 500000 }: MortgageCalculato
   const [principalAndInterest, setPrincipalAndInterest] = useState(0);
   const [totalMonthlyPayment, setTotalMonthlyPayment] = useState(0);
 
-  const calculatePayment = () => {
-    const principal = price - downPayment;
-    const monthlyRate = interestRate / 100 / 12;
-    const numberOfPayments = loanTerm * 12;
-    
-    let monthlyPI = 0;
-    if (monthlyRate > 0) {
-      monthlyPI = (principal * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -numberOfPayments));
-    } else {
-      monthlyPI = principal / numberOfPayments;
-    }
-    
-    // Calculate PMI if down payment is less than 20%
-    const downPaymentPercentage = (downPayment / price) * 100;
-    const monthlyPmi = downPaymentPercentage < 20 ? (principal * 0.005) / 12 : 0;
-    
-    setPrincipalAndInterest(monthlyPI);
-    setPmi(monthlyPmi);
-    setTotalMonthlyPayment(monthlyPI + propertyTax + insurance + monthlyPmi);
-  };
+const calculatePayment = useCallback(() => {
+  const principal = price - downPayment;
+  const monthlyRate = interestRate / 100 / 12;
+  const numberOfPayments = loanTerm * 12;
+  
+  let monthlyPI = 0;
+  if (monthlyRate > 0) {
+    monthlyPI = (principal * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -numberOfPayments));
+  } else {
+    monthlyPI = principal / numberOfPayments;
+  }
+
+  const downPaymentPercentage = (downPayment / price) * 100;
+  const monthlyPmi = downPaymentPercentage < 20 ? (principal * 0.005) / 12 : 0;
+
+  setPrincipalAndInterest(monthlyPI);
+  setPmi(monthlyPmi);
+  setTotalMonthlyPayment(monthlyPI + propertyTax + insurance + monthlyPmi);
+}, [price, downPayment, interestRate, loanTerm, propertyTax, insurance]);
+
 
   useEffect(() => {
     calculatePayment();
-  }, [downPayment, interestRate, loanTerm, propertyTax, insurance, price]);
+  }, [calculatePayment]);
 
   // Data for pie chart
   const chartData: ChartDataItem[] = [

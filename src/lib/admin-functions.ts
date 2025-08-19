@@ -1,6 +1,7 @@
 // lib/admin-functions.ts
 import { httpsCallable, getFunctions } from "firebase/functions";
 import  app  from "./firebase"; // your initialized Firebase app
+import { User } from "firebase/auth";
 
 // Specify the same region as your deployed Firebase functions
 const functions = getFunctions(app, "us-central1");
@@ -19,11 +20,11 @@ interface AdminFunctionResult {
   isFirstAdmin?: boolean;
 }
 
-interface UserInfo {
+export interface UserInfo {
   uid: string;
   email: string | null;
   displayName?: string | null;
-  customClaims: Record<string, any>;
+  customClaims: Record<string, boolean | string | number>;
   isAdmin: boolean;
   emailVerified: boolean;
   disabled: boolean;
@@ -74,7 +75,7 @@ export async function checkAdminStatus(): Promise<{ isAdmin: boolean }> {
 }
 
 /** Get current user's info including admin status */
-export async function getCurrentUserInfo(currentUser: any): Promise<UserInfo> {
+export async function getCurrentUserInfo(currentUser: User): Promise<UserInfo> {
   if (!currentUser) throw new Error("No current user provided");
 
   const adminStatus = await checkAdminStatus();

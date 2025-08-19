@@ -5,13 +5,10 @@ import { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useParams, useRouter } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, X, ChevronDown, ChevronUp } from "lucide-react";
 import PropertyLocationMap from "@/components/PropertyLocationMap";
 import PropertyHeader from "@/components/PropertyHeader";
 import PropertyOverview from "@/components/PropertyOverview";
-import { formatPrice } from "@/lib/utils"
 import PropertyHistory from "@/components/PropertyHistory";
 import Amenities from "@/components/Amenities";
 import ImageCarousel from "@/components/ImageCarousel";

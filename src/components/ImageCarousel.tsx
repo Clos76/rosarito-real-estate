@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Property } from "@/app/property/[id]/page"; // adjust path if needed
+import { Property } from "@/app/property/[id]/PropertyInterface"; // adjust path if needed
 
 interface ImageCarouselProps {
   images: Property["imageUrls"];

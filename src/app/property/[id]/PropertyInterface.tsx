@@ -1,13 +1,4 @@
-
-
-
-
-
-
-
-
-
-
+import { Timestamp } from "firebase-admin/firestore";
 // Enhanced Property interface with all new fields
 export interface Property {
   id: string;
@@ -46,7 +37,7 @@ export interface Property {
   amenities: string[];
   imageUrls: string[];
   mainImage: string;
-  createdAt: any;
+  createdAt: Timestamp;
   virtualTourUrl?: string;
   
   // Location fields

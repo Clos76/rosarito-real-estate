@@ -198,19 +198,22 @@ export default function LoginPage() {
         router.push("/admin/upload");
       }, 100);
       
-    } catch (err: any) {
-      console.error("Login error:", err);
-      
-      if (err.code) {
-        setError(getFirebaseErrorMessage(err.code));
-      } else {
-        setError(err.message || "Login failed");
-      }
-      
-      handleFailedAttempt();
-    } finally {
-      setLoading(false);
-    }
+ } catch (err: unknown) {
+  console.error("Login error:", err);
+
+  if (typeof err === "object" && err !== null && "code" in err) {
+    setError(getFirebaseErrorMessage((err as { code: string }).code));
+  } else if (err instanceof Error) {
+    setError(err.message || "Login failed");
+  } else {
+    setError("Login failed");
+  }
+
+  handleFailedAttempt();
+} finally {
+  setLoading(false);
+}
+
   };
 
   const formatTime = (seconds: number): string => {

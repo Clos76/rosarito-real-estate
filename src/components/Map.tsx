@@ -25,7 +25,7 @@ export default function Map() {
 
   useEffect(() => {
     if (isMapLoaded && window.google && mapRef.current) {
-      const map = new window.google.maps.Map(mapRef.current, {
+      new window.google.maps.Map(mapRef.current, {
         center: { lat: 32.525, lng: -117.033 },
         zoom: 14,
       });

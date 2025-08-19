@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { makeUserAdmin, getCurrentUserInfo, listAllAdmins } from "@/lib/admin-functions";
@@ -9,7 +9,7 @@ interface UserInfo {
   uid: string;
   email: string | null;
   displayName?: string | null;
-  customClaims: Record<string, any>;
+  customClaims: Record<string, unknown>;
   isAdmin: boolean;
   emailVerified: boolean;
   disabled: boolean;
@@ -43,28 +43,34 @@ export default function AdminSetupPage() {
     }
   };
 
-  const handleGetUserInfo = async () => {
-    if (!user) return;
-    setLoading(true);
-    setMessage("");
+ const handleGetUserInfo = useCallback(async () => {
+  if (!user) return;
+  setLoading(true);
+  setMessage("");
 
-    try {
-      const info = await getCurrentUserInfo(user);
-      setUserInfo(info);
-      showMessage("User info loaded successfully", "success");
-    } catch (error: any) {
-      console.error("Get user info error:", error);
-      const errorMessage =
-        error.code === "functions/unauthenticated"
+  try {
+    const info = await getCurrentUserInfo(user);
+    setUserInfo(info);
+    showMessage("User info loaded successfully", "success");
+  } catch (error: unknown) {
+    console.error("Get user info error:", error);
+
+    let errorMessage = "Failed to get user info.";
+    if (error && typeof error === "object" && "code" in error) {
+      const e = error as { code?: string; message?: string };
+      errorMessage =
+        e.code === "functions/unauthenticated"
           ? "You must be logged in to get user info."
-          : error.code === "functions/unavailable"
+          : e.code === "functions/unavailable"
           ? "Firebase Functions not available. Make sure you deployed your functions."
-          : error.message || "Failed to get user info.";
-      showMessage(`Error: ${errorMessage}`, "error");
-    } finally {
-      setLoading(false);
+          : e.message || errorMessage;
     }
-  };
+    showMessage(`Error: ${errorMessage}`, "error");
+  } finally {
+    setLoading(false);
+  }
+}, [user]); // ✅ dependency is just user
+
 
  const handleMakeAdmin = async () => {
   if (!user) return;
@@ -76,13 +82,21 @@ export default function AdminSetupPage() {
     const firstAdminMessage = result.isFirstAdmin ? "🎉 You are the first admin!" : "";
     showMessage(`${result.message} ${firstAdminMessage}`, "success");
     await handleGetUserInfo();
-  } catch (error: any) {
-    console.error("Admin setup error:", error);
-    const errorMessage = error.message || "An unexpected error occurred.";
-    showMessage(`Error: ${errorMessage}`, "error");
-  } finally {
-    setLoading(false);
-  }
+  } catch(error:unknown){
+      console.error("Get user info error:", error);
+
+      let errorMessage = "Failed to get user info.";
+      if(error && typeof error === "object" && "code" in error){
+        const e=error as { code?: string; message?: string};
+        errorMessage = 
+        e.code === "functions/unauthenticated"
+        ? "You must be looge in to get user info."
+        : e.code === "functions/unavailable"
+        ? "Firebase Functions not available. Make sure you deployed your functions."
+        : e.message || errorMessage;
+      }
+      showMessage(`Error: ${errorMessage}`, "error");
+    }
 };
 
 
@@ -95,18 +109,21 @@ export default function AdminSetupPage() {
     setAdminList(result.admins || []);
     setShowAdminList(true);
     showMessage(`Found ${result.admins?.length || 0} admin(s)`, "success");
-  } catch (error: any) {
-    console.error("List admins error:", error);
-    const errorMessage =
-      error.code === "functions/permission-denied"
-        ? "Only admins can view the admin list."
-        : error.code === "functions/unauthenticated"
-        ? "You must be logged in to list admins."
-        : error.message || "Failed to list admins.";
-    showMessage(`Error: ${errorMessage}`, "error");
-  } finally {
-    setLoading(false);
-  }
+  }catch(error:unknown){
+      console.error("Get user info error:", error);
+
+      let errorMessage = "Failed to get user info.";
+      if(error && typeof error === "object" && "code" in error){
+        const e=error as { code?: string; message?: string};
+        errorMessage = 
+        e.code === "functions/unauthenticated"
+        ? "You must be looge in to get user info."
+        : e.code === "functions/unavailable"
+        ? "Firebase Functions not available. Make sure you deployed your functions."
+        : e.message || errorMessage;
+      }
+      showMessage(`Error: ${errorMessage}`, "error");
+    }
 };
 
 
@@ -115,7 +132,7 @@ export default function AdminSetupPage() {
     if (user && !userInfo) {
       handleGetUserInfo();
     }
-  }, [user]);
+  }, [user, userInfo, handleGetUserInfo]);
 
   if (authLoading) {
     return (
@@ -321,7 +338,7 @@ export default function AdminSetupPage() {
             <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
               <h3 className="font-semibold text-green-800 mb-2">✅ Setup Complete!</h3>
               <p className="text-sm text-green-700 mb-3">
-                Congratulations! You're now an admin for your real estate platform.
+                Congratulations! You&apos;re now an admin for your real estate platform.
               </p>
             </div>
           )}
