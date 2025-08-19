@@ -3,7 +3,11 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
-import { makeUserAdmin, getCurrentUserInfo, listAllAdmins } from "@/lib/admin-functions";
+import {
+  makeUserAdmin,
+  getCurrentUserInfo,
+  listAllAdmins
+} from "@/lib/admin-functions";
 
 interface UserInfo {
   uid: string;
@@ -38,103 +42,73 @@ export default function AdminSetupPage() {
   const showMessage = (msg: string, type: "success" | "error" | "info" = "info") => {
     setMessage(msg);
     setMessageType(type);
-    if (type !== "error") {
-      setTimeout(() => setMessage(""), 5000);
+    if (type !== "error") setTimeout(() => setMessage(""), 5000);
+  };
+
+  const handleError = (error: unknown, defaultMsg = "An error occurred") => {
+    console.error("AdminSetupPage error:", error);
+    if (error && typeof error === "object") {
+      const e = error as { code?: string; message?: string };
+      if (e.code === "functions/unauthenticated") return "You must be logged in.";
+      if (e.code === "functions/unavailable") return "Firebase Functions not available. Deploy your functions.";
+      return e.message || defaultMsg;
+    }
+    return defaultMsg;
+  };
+
+  const handleGetUserInfo = useCallback(async () => {
+    if (!user) return;
+    setLoading(true);
+    setMessage("");
+
+    try {
+      const info = await getCurrentUserInfo(user);
+      setUserInfo(info);
+      showMessage("User info loaded successfully", "success");
+    } catch (error) {
+      showMessage(`Error: ${handleError(error, "Failed to get user info")}`, "error");
+    } finally {
+      setLoading(false);
+    }
+  }, [user]);
+
+  const handleMakeAdmin = async () => {
+    if (!user) return;
+    setLoading(true);
+    setMessage("");
+
+    try {
+      const result = await makeUserAdmin(user.uid);
+      const firstAdminMessage = result.isFirstAdmin ? "🎉 You are the first admin!" : "";
+      showMessage(`${result.message} ${firstAdminMessage}`, "success");
+      await handleGetUserInfo();
+    } catch (error) {
+      showMessage(`Error: ${handleError(error, "Failed to make user admin")}`, "error");
+    } finally {
+      setLoading(false);
     }
   };
 
- const handleGetUserInfo = useCallback(async () => {
-  if (!user) return;
-  setLoading(true);
-  setMessage("");
-
-  try {
-    const info = await getCurrentUserInfo(user);
-    setUserInfo(info);
-    showMessage("User info loaded successfully", "success");
-  } catch (error: unknown) {
-    console.error("Get user info error:", error);
-
-    let errorMessage = "Failed to get user info.";
-    if (error && typeof error === "object" && "code" in error) {
-      const e = error as { code?: string; message?: string };
-      errorMessage =
-        e.code === "functions/unauthenticated"
-          ? "You must be logged in to get user info."
-          : e.code === "functions/unavailable"
-          ? "Firebase Functions not available. Make sure you deployed your functions."
-          : e.message || errorMessage;
+  const handleListAdmins = async () => {
+    setLoading(true);
+    setMessage("");
+    try {
+      const result = await listAllAdmins();
+      setAdminList(result.admins || []);
+      setShowAdminList(true);
+      showMessage(`Found ${result.admins?.length || 0} admin(s)`, "success");
+    } catch (error) {
+      showMessage(`Error: ${handleError(error, "Failed to list admins")}`, "error");
+    } finally {
+      setLoading(false);
     }
-    showMessage(`Error: ${errorMessage}`, "error");
-  } finally {
-    setLoading(false);
-  }
-}, [user]); // ✅ dependency is just user
+  };
 
-
- const handleMakeAdmin = async () => {
-  if (!user) return;
-  setLoading(true);
-  setMessage("");
-
-  try {
-    const result = await makeUserAdmin(user.uid);
-    const firstAdminMessage = result.isFirstAdmin ? "🎉 You are the first admin!" : "";
-    showMessage(`${result.message} ${firstAdminMessage}`, "success");
-    await handleGetUserInfo();
-  } catch(error:unknown){
-      console.error("Get user info error:", error);
-
-      let errorMessage = "Failed to get user info.";
-      if(error && typeof error === "object" && "code" in error){
-        const e=error as { code?: string; message?: string};
-        errorMessage = 
-        e.code === "functions/unauthenticated"
-        ? "You must be looge in to get user info."
-        : e.code === "functions/unavailable"
-        ? "Firebase Functions not available. Make sure you deployed your functions."
-        : e.message || errorMessage;
-      }
-      showMessage(`Error: ${errorMessage}`, "error");
-    }
-};
-
-
- const handleListAdmins = async () => {
-  setLoading(true);
-  setMessage("");
-
-  try {
-    const result = await listAllAdmins();
-    setAdminList(result.admins || []);
-    setShowAdminList(true);
-    showMessage(`Found ${result.admins?.length || 0} admin(s)`, "success");
-  }catch(error:unknown){
-      console.error("Get user info error:", error);
-
-      let errorMessage = "Failed to get user info.";
-      if(error && typeof error === "object" && "code" in error){
-        const e=error as { code?: string; message?: string};
-        errorMessage = 
-        e.code === "functions/unauthenticated"
-        ? "You must be looge in to get user info."
-        : e.code === "functions/unavailable"
-        ? "Firebase Functions not available. Make sure you deployed your functions."
-        : e.message || errorMessage;
-      }
-      showMessage(`Error: ${errorMessage}`, "error");
-    }
-};
-
-
-  // Load user info automatically
   useEffect(() => {
-    if (user && !userInfo) {
-      handleGetUserInfo();
-    }
+    if (user && !userInfo) handleGetUserInfo();
   }, [user, userInfo, handleGetUserInfo]);
 
-  if (authLoading) {
+  if (authLoading)
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
@@ -143,9 +117,8 @@ export default function AdminSetupPage() {
         </div>
       </div>
     );
-  }
 
-  if (!user) {
+  if (!user)
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md text-center">
@@ -160,7 +133,6 @@ export default function AdminSetupPage() {
         </div>
       </div>
     );
-  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -246,100 +218,33 @@ export default function AdminSetupPage() {
                   {userInfo.displayName && <p><strong>Display Name:</strong> {userInfo.displayName}</p>}
                 </div>
                 <div>
-                  <p>
-                    <strong>Is Admin:</strong>{" "}
-                    <span
-                      className={`ml-2 px-2 py-1 rounded text-xs font-medium ${
-                        userInfo.isAdmin ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {userInfo.isAdmin ? "✅ YES" : "❌ NO"}
-                    </span>
-                  </p>
-                  <p>
-                    <strong>Email Verified:</strong>{" "}
-                    <span
-                      className={`ml-2 px-2 py-1 rounded text-xs font-medium ${
-                        userInfo.emailVerified ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
-                      }`}
-                    >
-                      {userInfo.emailVerified ? "✅ YES" : "⚠️ NO"}
-                    </span>
-                  </p>
-                  <p>
-                    <strong>Account Status:</strong>{" "}
-                    <span
-                      className={`ml-2 px-2 py-1 rounded text-xs font-medium ${
-                        userInfo.disabled ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"
-                      }`}
-                    >
-                      {userInfo.disabled ? "🚫 Disabled" : "✅ Active"}
-                    </span>
-                  </p>
+                  <p><strong>Is Admin:</strong> <span className={`ml-2 px-2 py-1 rounded text-xs font-medium ${userInfo.isAdmin ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>{userInfo.isAdmin ? "✅ YES" : "❌ NO"}</span></p>
+                  <p><strong>Email Verified:</strong> <span className={`ml-2 px-2 py-1 rounded text-xs font-medium ${userInfo.emailVerified ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}`}>{userInfo.emailVerified ? "✅ YES" : "⚠️ NO"}</span></p>
                 </div>
               </div>
-
-              {userInfo.customClaims && Object.keys(userInfo.customClaims).length > 0 && (
-                <div className="mt-4">
-                  <strong>Custom Claims:</strong>
-                  <pre className="mt-2 p-2 bg-gray-100 rounded text-xs overflow-auto">
-                    {JSON.stringify(userInfo.customClaims, null, 2)}
-                  </pre>
-                </div>
-              )}
             </div>
           )}
 
           {/* Admin List */}
-          {showAdminList && (
+          {showAdminList && adminList.length > 0 && (
             <div className="p-4 bg-purple-50 rounded-lg border border-purple-200 mb-6">
               <h3 className="font-semibold mb-3 text-purple-800">👥 All Admin Users ({adminList.length})</h3>
-              {adminList.length > 0 ? (
-                <div className="space-y-2">
-                  {adminList.map((admin) => (
-                    <div key={admin.uid} className="p-3 bg-white rounded border">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">{admin.email || "No email"}</p>
-                          {admin.displayName && <p className="text-sm text-gray-600">{admin.displayName}</p>}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          <p>
-                            Created: {admin.creationTime ? new Date(admin.creationTime).toLocaleDateString() : "N/A"}
-                          </p>
-                          {admin.lastSignInTime && (
-                            <p>Last Login: {new Date(admin.lastSignInTime).toLocaleDateString()}</p>
-                          )}
-                        </div>
+              <div className="space-y-2">
+                {adminList.map((admin) => (
+                  <div key={admin.uid} className="p-3 bg-white rounded border">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium">{admin.email || "No email"}</p>
+                        {admin.displayName && <p className="text-sm text-gray-600">{admin.displayName}</p>}
                       </div>
-                      <div className="mt-2 flex items-center space-x-2">
-                        <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">
-                          🛡️ Admin
-                        </span>
-                        <span
-                          className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
-                            admin.emailVerified ? "bg-blue-100 text-blue-800" : "bg-yellow-100 text-yellow-800"
-                          }`}
-                        >
-                          {admin.emailVerified ? "✉️ Verified" : "⚠️ Unverified"}
-                        </span>
+                      <div className="text-xs text-gray-500">
+                        <p>Created: {admin.creationTime ? new Date(admin.creationTime).toLocaleDateString() : "N/A"}</p>
+                        {admin.lastSignInTime && <p>Last Login: {new Date(admin.lastSignInTime).toLocaleDateString()}</p>}
                       </div>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-orange-700">No admins found.</p>
-              )}
-            </div>
-          )}
-
-          {/* Success State */}
-          {userInfo?.isAdmin && (
-            <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
-              <h3 className="font-semibold text-green-800 mb-2">✅ Setup Complete!</h3>
-              <p className="text-sm text-green-700 mb-3">
-                Congratulations! You&apos;re now an admin for your real estate platform.
-              </p>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
