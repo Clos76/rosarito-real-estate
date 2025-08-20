@@ -28,15 +28,18 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ previews, onRemoveImage }
   return (
     <div className="mb-6">
       <h3 className="text-lg font-medium mb-3">Image Previews ({previews.length}/20):</h3>
-      
+
       {/* Main Image Display */}
       <div className="relative w-full h-80 md:h-96 bg-gray-100 rounded-lg overflow-hidden mb-4">
         <Image
           src={previews[currentImageIndex]}
           alt={`Property image ${currentImageIndex + 1}`}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 700px"
           className="w-full h-full object-cover"
+          priority={true}
         />
-        
+
         {/* Navigation Arrows */}
         {previews.length > 1 && (
           <>
@@ -85,16 +88,17 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ previews, onRemoveImage }
               className="relative flex-shrink-0 cursor-pointer group"
               onClick={() => goToImage(index)}
             >
-              <Image
-                src={preview}
-                alt={`Thumbnail ${index + 1}`}
-                className={`w-20 h-20 object-cover rounded-lg border-2 transition-all duration-200 ${
-                  index === currentImageIndex 
-                    ? 'border-blue-500 opacity-100' 
-                    : 'border-gray-300 opacity-70 hover:opacity-90'
-                }`}
-              />
-              
+              <div className="relative w-20 h-20">
+                <Image
+                  src={preview}
+                  alt={`Thumbnail ${index + 1}`}
+                  fill
+                  sizes="80px"
+                  className="object-cover rounded-lg border-2 ..."
+                />
+              </div>
+
+
               {/* Remove button for thumbnails */}
               <button
                 onClick={(e) => {

@@ -81,6 +81,7 @@ function NeighborhoodCard({ neighborhood }: { neighborhood: Neighborhood }) {
                 src={neighborhood.image}
                 alt={neighborhood.alt}
                 fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 className="w-full h-full object-cover brightness-60"
             />
 

@@ -10,7 +10,6 @@ import { useAuth } from "@/lib/auth-context";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import PropertyLocationMap from "@/components/PropertyLocationMap";
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import AdminSetupPage from '@/app/admin/Setup/page'
 import ImageCarousel from "@/components/ImageCarousel/ImageCarousel";
 
 
@@ -533,7 +532,7 @@ function UploadForm() {
 
       <fieldset disabled={!isAdmin}>
 
-      <AdminSetupPage/>
+      
         {/* Basic Property Information */}
         <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
           <h2 className="text-xl font-semibold mb-4">Basic Information</h2>

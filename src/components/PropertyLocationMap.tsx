@@ -99,11 +99,15 @@ export default function PropertyLocationMap({
     const existingScript = document.getElementById("googleMapsScript");
     if (!existingScript) {
       const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&v=3.55`;
+      // Fixed: Use the correct library parameter for marker
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&v=weekly`;
       script.id = "googleMapsScript";
       script.async = true;
       script.defer = true;
-      script.onload = () => setIsMapLoaded(true);
+      script.onload = () => {
+        // Add a small delay to ensure everything is loaded
+        setTimeout(() => setIsMapLoaded(true), 100);
+      };
       script.onerror = () => setLoadError("Failed to load Google Maps script.");
       document.head.appendChild(script);
     } else if (window.google && window.google.maps) {
@@ -148,15 +152,30 @@ export default function PropertyLocationMap({
       const newGeocoder = new window.google.maps.Geocoder();
 
       const onMapReady = () => {
-        // Default marker
+        // Create custom marker icon
+        const markerIcon = {
+          url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+            <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="16" cy="16" r="14" fill="#2563eb" stroke="white" stroke-width="3"/>
+              <text x="16" y="20" text-anchor="middle" fill="white" font-size="14" font-family="Arial">🏠</text>
+            </svg>
+          `),
+          scaledSize: new window.google.maps.Size(32, 32),
+          anchor: new window.google.maps.Point(16, 16),
+        };
+
+        // Use standard Marker instead of AdvancedMarkerElement
         const newMarker = new window.google.maps.Marker({
+          position: selectedLocation
+            ? { lat: selectedLocation.lat, lng: selectedLocation.lng }
+            : { lat: initialLat, lng: initialLng },
           map: newMap,
           draggable: !readOnly,
-          animation: window.google.maps.Animation.DROP,
-          position: selectedLocation ? { lat: selectedLocation.lat, lng: selectedLocation.lng } : undefined,
+          title: selectedLocation?.formattedAddress || "Property Location",
+          icon: markerIcon,
         });
 
-        // Add rectangle for property
+        // Add rectangle for property boundary
         if (selectedLocation) {
           const bounds = {
             north: selectedLocation.lat + 0.000137,
@@ -174,8 +193,6 @@ export default function PropertyLocationMap({
             map: newMap,
             bounds,
           });
-
-         
         }
 
         // Click and drag events
@@ -196,20 +213,31 @@ export default function PropertyLocationMap({
           });
         }
 
-        // Info window for readonly
+        // Info window for readonly mode
         if (readOnly && selectedLocation && showInfoWindow) {
           const infoWindow = new window.google.maps.InfoWindow({
-            content: `<div style="padding:12px;font-family:system-ui,sans-serif;min-width:200px;">
-              <div style="font-weight:600;margin-bottom:6px;color:#1f2937;font-size:14px;">Property Location</div>
-              <div style="font-size:13px;color:#6b7280;line-height:1.4;">${selectedLocation.formattedAddress}</div>
-            </div>`,
+            content: `
+              <div style="padding:12px;font-family:system-ui,sans-serif;min-width:200px;">
+                <div style="font-weight:600;margin-bottom:6px;color:#1f2937;font-size:14px;">Property Location</div>
+                <div style="font-size:13px;color:#6b7280;line-height:1.4;">${selectedLocation.formattedAddress}</div>
+              </div>
+            `,
           });
-          newMarker.addListener("click", () => infoWindow.open(newMap, newMarker));
+          
+          newMarker.addListener("click", () => {
+            infoWindow.open(newMap, newMarker);
+          });
+
+          // Auto-open info window in readonly mode
+          setTimeout(() => {
+            infoWindow.open(newMap, newMarker);
+          }, 500);
         }
 
         setMarker(newMarker);
       };
 
+      // Wait for map to be fully loaded
       google.maps.event.addListenerOnce(newMap, "idle", onMapReady);
       google.maps.event.addListenerOnce(newMap, "tilesloaded", onMapReady);
 
@@ -217,6 +245,7 @@ export default function PropertyLocationMap({
       setGeocoder(newGeocoder);
     };
 
+    // Use requestAnimationFrame to ensure DOM is ready
     requestAnimationFrame(() => {
       setTimeout(initializeMap, 100);
     });
@@ -224,15 +253,19 @@ export default function PropertyLocationMap({
     return () => clearTimeout(timeoutId);
   }, [isMapLoaded, map, initialLat, initialLng, selectedLocation, readOnly, zoom, showInfoWindow, reverseGeocode]);
 
-  // Cleanup
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (marker) marker.setMap(null);
-      if (map) google.maps.event.clearInstanceListeners(map);
+      if (marker) {
+        marker.setMap(null);
+      }
+      if (map) {
+        google.maps.event.clearInstanceListeners(map);
+      }
     };
   }, [marker, map]);
 
-  // Address search
+  // Address search functionality
   const handleAddressSearch = async () => {
     if (!geocoder || !searchAddress.trim() || readOnly) return;
     setIsSearching(true);
@@ -264,7 +297,7 @@ export default function PropertyLocationMap({
       }
     } catch (error) {
       console.error("Address search error:", error);
-      alert("Address not found. Please try again.");
+      alert("Address not found. Please try again with a different search term.");
     } finally {
       setIsSearching(false);
     }
@@ -277,7 +310,7 @@ export default function PropertyLocationMap({
     }
   };
 
-  // Render
+  // Error state render
   if (loadError) {
     return (
       <div className="space-y-4">
@@ -286,12 +319,14 @@ export default function PropertyLocationMap({
             <MapPin className="w-8 h-8 text-red-500 mx-auto mb-2" />
             <p className="text-red-700 font-medium">Map Loading Error</p>
             <p className="text-red-600 text-sm mt-1">{loadError}</p>
+            <p className="text-red-600 text-xs mt-2">Please check your Google Maps API key configuration.</p>
           </div>
         </div>
       </div>
     );
   }
 
+  // Main component render
   return (
     <div className="space-y-4">
       {!readOnly && (
@@ -304,43 +339,61 @@ export default function PropertyLocationMap({
                 value={searchAddress}
                 onChange={(e) => setSearchAddress(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Enter property address..."
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 pr-10"
+                placeholder="Enter property address (e.g., 123 Main St, Los Angeles, CA)"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-10 transition-colors"
               />
-              <Search className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
+              <Search className="absolute right-3 top-2.5 h-5 w-5 text-gray-400 pointer-events-none" />
             </div>
             <button
               type="button"
               onClick={handleAddressSearch}
               disabled={isSearching || !searchAddress.trim()}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors min-w-[120px]"
             >
               {isSearching ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Searching...
+                  <span>Searching...</span>
                 </>
               ) : (
                 <>
                   <Search className="w-4 h-4" />
-                  Search
+                  <span>Search</span>
                 </>
               )}
             </button>
           </div>
+          {selectedLocation && (
+            <p className="text-sm text-gray-600 mt-2">
+              📍 Current location: {selectedLocation.formattedAddress}
+            </p>
+          )}
         </div>
       )}
+      
       <div className="relative w-full">
-        <div ref={mapRef} className="w-full rounded-lg border border-gray-300 shadow-sm" style={{ height, minHeight: height }} />
-        {!isMapLoaded && (
+        <div 
+          ref={mapRef} 
+          className="w-full rounded-lg border border-gray-300 shadow-sm bg-gray-100" 
+          style={{ height, minHeight: height }} 
+        />
+        
+        {!isMapLoaded && !loadError && (
           <div className="absolute inset-0 bg-gray-100 rounded-lg flex items-center justify-center z-10" style={{ height }}>
             <div className="text-center">
               <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-              <p className="text-gray-600">Loading map...</p>
+              <p className="text-gray-600 font-medium">Loading map...</p>
+              <p className="text-gray-500 text-sm mt-1">Please wait while we initialize Google Maps</p>
             </div>
           </div>
         )}
       </div>
+
+      {!readOnly && (
+        <div className="text-xs text-gray-500 mt-2">
+          💡 Tip: Click anywhere on the map to place a marker, or drag the existing marker to a new location
+        </div>
+      )}
     </div>
   );
 }
