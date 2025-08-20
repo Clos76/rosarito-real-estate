@@ -4,6 +4,7 @@ import { db } from "@/lib/firebase"; // your firebase config
 import { formatPrice } from "@/lib/utils";
 import { Property } from "@/app/property/[id]/PropertyInterface";
 import Image from "next/image";
+import { object } from "firebase-functions/v1/storage";
 
 interface SimilarHomesProps {
   currentPropertyId: string;
@@ -58,13 +59,15 @@ const SimilarHomes: React.FC<SimilarHomesProps> = ({ currentPropertyId, property
         {similarProperties.map((prop) => (
           <div key={prop.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden">
             <div className="bg-gray-100 h-48 flex items-center justify-center">
-              {prop.mainImage ? (
-                <Image
-                  src={prop.mainImage}
-                  alt={prop.title}
-                  className="object-cover w-full h-full"
-                  loading="lazy"
-                />
+              {prop.mainImage ? ( 
+                  <Image
+                    src={prop.mainImage}
+                    alt={prop.title}
+                    width={800}
+                    height={600}
+                    style={{objectFit: "cover"}}
+                    loading="lazy"
+                  />
               ) : (
                 <p className="text-gray-500">No Image</p>
               )}

@@ -86,12 +86,15 @@ export default function RecommendedSection() {
           {homes.map((home) => (
             <Link key={home.id} href={`/property/${home.id}`}>
             <div key={home.id} className="bg-white rounded shadow hover:shadow-md transition overflow-hidden ring-2 ring-white hover:ring-blue-500 relative h-64">
-              <Image
+              <div className="relative w-full h-64">
+                <Image
                 src={home.mainImage || "/placeholder.jpg"}
                 alt={home.title || "Property"}
                 fill
-                className="w-full h-full object-cover absolute inset-0  " //full cover of pic on card 
+                style={{objectFit: "cover"}}
+                //full cover of pic on card 
               />
+              </div>
               <div className="relative z-10 bg-gradient-to-t from-black/70 via-black/30 to-transparent h-full flex flex-col justify-end p-2">
                 <p className="text-white text-2xl font-bold ">
                   ${home.price ? home.price.toLocaleString() : "Price not available"}
