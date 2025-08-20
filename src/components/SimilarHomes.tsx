@@ -4,7 +4,6 @@ import { db } from "@/lib/firebase"; // your firebase config
 import { formatPrice } from "@/lib/utils";
 import { Property } from "@/app/property/[id]/PropertyInterface";
 import Image from "next/image";
-import { object } from "firebase-functions/v1/storage";
 
 interface SimilarHomesProps {
   currentPropertyId: string;
