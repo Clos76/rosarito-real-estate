@@ -25,12 +25,39 @@ export default function Map() {
 
   useEffect(() => {
     if (isMapLoaded && window.google && mapRef.current) {
-      new window.google.maps.Map(mapRef.current, {
-        center: { lat: 32.525, lng: -117.033 },
-        zoom: 14,
+      const center = { lat: 32.525, lng: -117.033 };
+
+      const map = new window.google.maps.Map(mapRef.current, {
+        center,
+        zoom: 15,
+        mapTypeControl: true, // Map/Satellite toggle
+        streetViewControl: true, // Street View option
+      });
+
+      // Add marker
+      new window.google.maps.Marker({
+        position: center,
+        map,
+        title: "Property Location",
+      });
+
+      // Add rectangle (e.g. marking property bounds)
+      new window.google.maps.Rectangle({
+        strokeColor: "#FF0000",
+        strokeOpacity: 0.8,
+        strokeWeight: 2,
+        fillColor: "#FF0000",
+        fillOpacity: 0.2,
+        map,
+        bounds: {
+          north: center.lat + 0.001, // adjust size of square
+          south: center.lat - 0.001,
+          east: center.lng + 0.001,
+          west: center.lng - 0.001,
+        },
       });
     }
   }, [isMapLoaded]);
 
-  return <div ref={mapRef} className="w-full h-96" />;
+  return <div ref={mapRef} className="w-full h-96 rounded-xl shadow-md" />;
 }
