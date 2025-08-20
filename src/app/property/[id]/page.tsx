@@ -240,9 +240,10 @@ export default function PropertyDetailsPage() {
           {/* Amenities Section */}
           <Amenities amenities={property.amenities}/>
 
-          {/* Location Section - Enhanced with Interactive Map */}
+         
           <section id="location" className="mb-12">
-            <h2 className="text-2xl font-bold mb-6">Location & Neighborhood</h2>
+             <h2 className="text-2xl font-bold mb-6">Location & Neighborhood</h2>
+             {/* Location Section - Enhanced with Interactive Map */}
 
             {/* Property Location Map */}
             {property.lat && property.lng ? (

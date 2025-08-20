@@ -1,5 +1,5 @@
 import React from "react";
-import {formatPrice} from "@/lib/utils"
+import { formatPrice } from "@/lib/utils"
 import PropertyLocationMap from "./PropertyLocationMap";
 
 // Overview page section
@@ -62,19 +62,25 @@ export default function PropertyOverview({
                         </div>
                     </div>
                 </div>
+                
                 {/* Property Location Map--// Overview Section - Small map */}
                 <div>
+                 
+
                     {lat && lng ? (
-                        <PropertyLocationMap
-                            onLocationSelect={() => { }} // Read-only mode
-                            initialAddress={formattedAddress || address}
-                            initialLat={lat}
-                            initialLng={lng}
-                            readOnly={true}
-                            height="256px"
-                            zoom={13}
-                            showInfoWindow={false} // Hide info window in overview for cleaner look
-                        />
+                        <div style={{ border: '2px solid blue', padding: '5px' }}> {/* Blue border to see container */}
+                            <PropertyLocationMap
+                                key={`overview-${lat}-${lng}-${Date.now()}`}
+                                onLocationSelect={() => console.log("Location selected in overview")}
+                                initialAddress={formattedAddress || address}
+                                initialLat={lat}
+                                initialLng={lng}
+                                readOnly={true}
+                                height="256px"
+                                zoom={13}
+                                showInfoWindow={false}
+                            />
+                        </div>
                     ) : (
                         <div className="bg-gray-100 h-64 rounded-lg flex items-center justify-center">
                             <p className="text-gray-500">Map location not available</p>
