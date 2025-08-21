@@ -16,14 +16,13 @@ const nextConfig: NextConfig = {
       {
         source: "/(.*)",
         headers: [
-          // Note: CSP is handled by middleware.ts for dynamic nonce support
-          // Fallback CSP for requests not processed by middleware
+          // MAIN CSP (not report-only) - Fixed missing directives
           {
-            key: "Content-Security-Policy-Report-Only", 
+            key: "Content-Security-Policy", 
             value: `
               default-src 'self';
-              script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://maps.googleapis.com https://cdnjs.cloudflare.com;
-              style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+              script-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://maps.googleapis.com https://cdnjs.cloudflare.com;
+              style-src 'self' https://fonts.googleapis.com;
               img-src 'self' data: blob: https://firebasestorage.googleapis.com https://rosaritoresorts.com https://maps.googleapis.com https://maps.gstatic.com;
               font-src 'self' https://fonts.gstatic.com;
               connect-src 'self' https://firebasestorage.googleapis.com https://*.firebaseio.com https://*.googleapis.com https://www.google-analytics.com https://analytics.google.com;
@@ -36,6 +35,11 @@ const nextConfig: NextConfig = {
               worker-src 'self' blob:;
               child-src 'self' blob:;
               media-src 'self' blob: data:;
+              prefetch-src 'self';
+              navigate-to 'self' https:;
+              report-uri /api/csp-report;
+              upgrade-insecure-requests;
+              block-all-mixed-content;
             `.replace(/\s{2,}/g, ' ').trim()
           },
           // Prevent MIME type sniffing
@@ -63,17 +67,13 @@ const nextConfig: NextConfig = {
             key: "Strict-Transport-Security",
             value: "max-age=63072000; includeSubDomains; preload"
           },
-          // Prevent XSS
-          {
-            key: "X-XSS-Protection",
-            value: "1; mode=block"
-          },
-          // Cache control for sensitive pages
+          // Remove XSS Protection (deprecated, causes issues)
+          // Cache control - more specific
           {
             key: "Cache-Control",
-            value: "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"
+            value: "no-cache, no-store, must-revalidate, max-age=0, private"
           },
-          // Additional security headers
+          // Cross-origin policies
           {
             key: "Cross-Origin-Embedder-Policy",
             value: "require-corp"
@@ -84,8 +84,13 @@ const nextConfig: NextConfig = {
           },
           {
             key: "Cross-Origin-Resource-Policy",
-            value: "same-site"
+            value: "same-origin"
           },
+          // Remove server info
+          {
+            key: "Server",
+            value: ""
+          }
         ]
       },
       // Specific headers for API routes
@@ -106,11 +111,11 @@ const nextConfig: NextConfig = {
           },
           {
             key: "Cache-Control",
-            value: "no-store, no-cache, must-revalidate"
+            value: "no-store, no-cache, must-revalidate, private, max-age=0"
           },
           {
             key: "Access-Control-Allow-Origin",
-            value: process.env.NODE_ENV === 'production' ? process.env.NEXT_PUBLIC_SITE_URL || 'https://rosaritoresorts.com' : '*'
+            value: process.env.NODE_ENV === 'production' ? process.env.NEXT_PUBLIC_SITE_URL || 'https://rosaritoresorts.com' : 'http://localhost:3000'
           },
           {
             key: "Access-Control-Allow-Methods",
@@ -120,9 +125,17 @@ const nextConfig: NextConfig = {
             key: "Access-Control-Allow-Headers",
             value: "Content-Type, Authorization, X-Requested-With"
           },
+          {
+            key: "Access-Control-Allow-Credentials",
+            value: "true"
+          },
+          {
+            key: "Access-Control-Max-Age",
+            value: "86400"
+          }
         ]
       },
-      // Headers for static assets with longer cache
+      // Headers for static assets
       {
         source: "/(_next/static|favicon.ico|robots.txt|sitemap.xml)/(.*)",
         headers: [
@@ -130,14 +143,17 @@ const nextConfig: NextConfig = {
             key: "Cache-Control",
             value: "public, max-age=31536000, immutable"
           },
+          {
+            key: "Cross-Origin-Resource-Policy",
+            value: "cross-origin"
+          }
         ]
       },
     ];
   },
 
-  // Environment variables validation (optional)
+  // Environment variables validation
   env: {
-    // Only expose necessary env vars to client
     NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
   },
 
@@ -147,19 +163,13 @@ const nextConfig: NextConfig = {
   // Remove powered by header for security
   poweredByHeader: false,
   
-  // Server external packages (moved from experimental in newer Next.js)
+  // Server external packages
   serverExternalPackages: ['@prisma/client'],
   
-  // Experimental features for better performance
+  // Experimental features
   experimental: {
-    // Optimize package imports for better tree shaking
     optimizePackageImports: ['lucide-react'],
   },
-  
-  // Note: Webpack config removed to allow Turbopack usage
-  // Source maps are disabled by default in production builds
-  
-  // If you need custom webpack config, you can add it back:
 };
 
 export default nextConfig;
