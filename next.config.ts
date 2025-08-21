@@ -21,8 +21,8 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy", 
             value: `
               default-src 'self';
-              script-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://maps.googleapis.com https://cdnjs.cloudflare.com;
-              style-src 'self' https://fonts.googleapis.com;
+              script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://maps.googleapis.com https://cdnjs.cloudflare.com;
+              style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
               img-src 'self' data: blob: https://firebasestorage.googleapis.com https://rosaritoresorts.com https://maps.googleapis.com https://maps.gstatic.com;
               font-src 'self' https://fonts.gstatic.com;
               connect-src 'self' https://firebasestorage.googleapis.com https://*.firebaseio.com https://*.googleapis.com https://www.google-analytics.com https://analytics.google.com;

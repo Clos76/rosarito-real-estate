@@ -45,11 +45,11 @@ export function middleware(request: NextRequest) {
   // Generate a secure nonce for each request
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64').substring(0, 16);
   
-  // Enhanced CSP with nonce and no unsafe-inline
+  // Enhanced CSP with nonce and temporary unsafe-inline (remove once refactored)
   const cspHeader = `
     default-src 'self';
-    script-src 'self' 'nonce-${nonce}' https://www.googletagmanager.com https://www.google-analytics.com https://maps.googleapis.com https://cdnjs.cloudflare.com;
-    style-src 'self' 'nonce-${nonce}' https://fonts.googleapis.com;
+    script-src 'self' 'unsafe-inline' 'nonce-${nonce}' https://www.googletagmanager.com https://www.google-analytics.com https://maps.googleapis.com https://cdnjs.cloudflare.com;
+    style-src 'self' 'unsafe-inline' 'nonce-${nonce}' https://fonts.googleapis.com;
     img-src 'self' data: blob: https://firebasestorage.googleapis.com https://rosaritoresorts.com https://maps.googleapis.com https://maps.gstatic.com;
     font-src 'self' https://fonts.gstatic.com;
     connect-src 'self' https://firebasestorage.googleapis.com https://*.firebaseio.com https://*.googleapis.com https://www.google-analytics.com https://analytics.google.com;
