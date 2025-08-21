@@ -102,8 +102,7 @@ export default function Neighborhoods() {
         <div className="w-full py-8 px-4">
             <div className='max-w-6xl mx-auto pt-4'>
                 <section>
-                    <h1 className='font-medium text-3xl'>Find the Neighborhood For You</h1>
-                    <p>The neighborhoods best suited for beachfront living</p>
+                    
                     <div className="w-full grid grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-4 pt-4 mb-4">
                         {neighborhoods.map((neighborhood) => (
                             <NeighborhoodCard
