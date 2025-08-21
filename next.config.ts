@@ -8,11 +8,22 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: "/(.*)", // applies to all routes
+        source: "/(.*)",
         headers: [
           {
             key: "Content-Security-Policy",
-            value: "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://rosaritoresorts.com;"
+            value: `
+            default-src 'self';
+            script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com;
+            style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+            img-src 'self' data: https://firebasestorage.googleapis.com https://rosaritoresorts.com;
+            font-src https://fonts.gstatic.com;
+            connect-src 'self' https://firebasestorage.googleapis.com https://*.firebaseio.com https://*.googleapis.com;
+            frame-src 'self';
+            object-src 'none';
+            base-uri 'self';
+            form-action 'self';
+          `.replace(/\s{2,}/g, ' ').trim()
           },
           {
             key: "X-Content-Type-Options",
