@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ["firebasestorage.googleapis.com", "rosaritoresorts.com", "maps.googleapis.com", "maps.gstatic.com"],
+    domains: ["firebasestorage.googleapis.com"],
   },
 
   async headers() {
@@ -13,45 +13,40 @@ const nextConfig: NextConfig = {
           {
             key: "Content-Security-Policy",
             value: `
-  default-src 'self';
-  script-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://maps.googleapis.com;
-  style-src 'self' 'unsafe-hashes' https://fonts.googleapis.com;
-  img-src 'self' data: blob: https://firebasestorage.googleapis.com https://rosaritoresorts.com https://maps.googleapis.com https://maps.gstatic.com;
-  font-src 'self' https://fonts.gstatic.com;
-  connect-src 'self' https://firebasestorage.googleapis.com https://*.firebaseio.com https://*.googleapis.com https://www.google-analytics.com;
-  frame-src 'self' https://www.google.com https://maps.googleapis.com;
-  object-src 'none';
-  base-uri 'self';
-  form-action 'self';
-  upgrade-insecure-requests;
-`.replace(/\s{2,}/g, " ").trim(),
+            default-src 'self';
+            script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://maps.googleapis.com;
+            style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+            img-src 'self' data: https://firebasestorage.googleapis.com https://rosaritoresorts.com https://maps.googleapis.com;
+            font-src https://fonts.gstatic.com;
+            connect-src 'self' https://firebasestorage.googleapis.com https://*.firebaseio.com https://*.googleapis.com;
+            frame-src 'self';
+            object-src 'none';
+            base-uri 'self';
+            form-action 'self';
+          `.replace(/\s{2,}/g, ' ').trim()
           },
           {
             key: "X-Content-Type-Options",
-            value: "nosniff",
+            value: "nosniff"
           },
           {
             key: "X-Frame-Options",
-            value: "SAMEORIGIN",
+            value: "SAMEORIGIN"
           },
           {
             key: "Referrer-Policy",
-            value: "strict-origin-when-cross-origin",
+            value: "strict-origin-when-cross-origin"
           },
           {
             key: "Permissions-Policy",
-            value: "geolocation=(), microphone=(), camera=()",
+            value: "geolocation=(), microphone=(), camera=()"
           },
           {
             key: "Strict-Transport-Security",
-            value: "max-age=63072000; includeSubDomains; preload",
+            value: "max-age=63072000; includeSubDomains; preload"
           },
-          {
-            key: "Cache-Control",
-            value: "no-store, no-cache, must-revalidate, proxy-revalidate",
-          },
-        ],
-      },
+        ]
+      }
     ];
   },
 };
