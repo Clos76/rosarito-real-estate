@@ -3,6 +3,8 @@ import React, { useState } from 'react'
 import { Phone, Mail, MapPin, Facebook, Instagram, Youtube, Linkedin, CheckCircle, AlertCircle } from 'lucide-react'
 import { db } from '@/lib/firebase'
 import { collection, addDoc, query, where, getDocs } from 'firebase/firestore'
+import Link from 'next/link'
+
 
 const Footer: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -184,11 +186,10 @@ const Footer: React.FC = () => {
 
                             {/* Success/Error messages */}
                             {message.type && (
-                                <div className={`mt-3 p-2 rounded text-xs flex items-center ${
-                                    message.type === 'success'
+                                <div className={`mt-3 p-2 rounded text-xs flex items-center ${message.type === 'success'
                                         ? 'bg-green-800 text-green-200'
                                         : 'bg-red-800 text-red-200'
-                                }`}>
+                                    }`}>
                                     {message.type === 'success' ? (
                                         <CheckCircle className='w-3 h-3 mr-2' />
                                     ) : (
@@ -211,21 +212,32 @@ const Footer: React.FC = () => {
                                 © 2025 Rosarito Resorts. All rights reserved.
                             </p>
                         </div>
-                        
+
+                        {/* Right side - legal links */}
+
+
                         {/* Right side - legal links */}
                         <div className="flex flex-wrap justify-center lg:justify-end space-x-6 text-sm">
-                            <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors">Terms and Conditions</a>
-                            <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors">Privacy Center</a>
-                            <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors">Cookies</a>
-                            <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors">Contact</a>
-                        </div> 
+                            <Link href="/legal?section=terms" className="text-gray-400 hover:text-blue-400 transition-colors">
+                                Terms and Conditions
+                            </Link>
+                            <Link href="/legal?section=privacy" className="text-gray-400 hover:text-blue-400 transition-colors">
+                                Privacy Center
+                            </Link>
+                            <Link href="/legal?section=cookies" className="text-gray-400 hover:text-blue-400 transition-colors">
+                                Cookies
+                            </Link>
+                            <Link href="/legal?section=contact" className="text-gray-400 hover:text-blue-400 transition-colors">
+                                Contact
+                            </Link>
+                        </div>
                     </div>
-                        
+
                     {/* Additional Legal Info */}
                     <div className="mt-6 pt-6 border-t border-gray-800">
                         <p className="text-xs text-gray-500 text-center leading-relaxed">
-                            *All prices are subject to change without prior notice. 
-                            The photos and property descriptions are for informational purposes only. 
+                            *All prices are subject to change without prior notice.
+                            The photos and property descriptions are for informational purposes only.
                             It is recommended to verify all information with an authorized agent.
                         </p>
                     </div>
