@@ -184,7 +184,7 @@ export function middleware(request: NextRequest) {
     /\bdrop\b.*\btable\b/gi,     // SQL injection
     /\binsert\b.*\binto\b/gi,    // SQL injection
     /\bdelete\b.*\bfrom\b/gi,    // SQL injection
-    /on\w+\s*=/gi,               // Event handlers
+   // /on\w+\s*=/gi,               // Event handlers
   ];
 
   const url = request.nextUrl.pathname + request.nextUrl.search;

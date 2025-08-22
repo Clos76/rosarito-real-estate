@@ -486,15 +486,11 @@ const LegalCenter: React.FC = () => {
         <div className="max-w-6xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <button
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                aria-label="Volver"
-                type="button"
-              >
+              
                 <Link href="/">
+                 <ArrowLeft className="h-5 w-5 text-gray-600" />
                 </Link>
-                <ArrowLeft className="h-5 w-5 text-gray-600" />
-              </button>
+               
               <h1 className="text-xl md:text-2xl font-bold text-gray-900">Centro Legal</h1>
             </div>
             <div className="text-sm text-gray-500 hidden md:block">

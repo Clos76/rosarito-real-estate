@@ -2,7 +2,7 @@ import RecommendedSection from "@/components/layout/RecommendedSection";
 import Hero from "../components/layout/Hero";
 import InfoCards from "@/components/layout/InfoCards";
 import Neighborhoods from "@/components/layout/Neighborhoods";
-import ContactForm from "@/components/layout/ContactForm";
+import ContactForm from "@/components/layout/MainContactForm"; 
 import Head from "next/head";
 import Footer from "@/components/layout/Footer";
 

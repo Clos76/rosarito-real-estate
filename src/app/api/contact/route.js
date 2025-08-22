@@ -39,15 +39,18 @@ function checkRateLimit(ip) {
   return true // Request allowed
 }
 
-// Input sanitization
+// FIXED: Proper sanitization that preserves spaces
 function sanitizeInput(input) {
-  if (typeof input !== 'string') return ''
+  if (!input || typeof input !== 'string') return ''
   
   return input
-    .trim()
     .replace(/[<>]/g, '') // Remove potential HTML tags
     .replace(/javascript:/gi, '') // Remove javascript: protocols
-    .replace(/on\w+=/gi, '') // Remove event handlers
+    .replace(/on\w+\s*=/gi, '') // Remove event handlers like onclick=
+    .replace(/vbscript:/gi, '') // Remove VBScript
+    .replace(/data:\s*text\/html/gi, '') // Remove data URLs with HTML
+    .trim() // Remove leading/trailing whitespace
+    .replace(/\s+/g, ' ') // Normalize multiple spaces to single spaces (preserves spaces!)
     .substring(0, 1000) // Limit length
 }
 
@@ -79,6 +82,8 @@ export async function POST(request) {
 
     // Extract and validate request body
     const body = await request.json()
+    console.log('Received form data:', body) // Debug log
+    
     const { name, email, phone, homeTypes, lookingFor, message } = body
 
     // Server-side validation
@@ -117,7 +122,7 @@ export async function POST(request) {
       }, { status: 400 })
     }
 
-    // Sanitize and prepare data
+    // FIXED: Sanitize and prepare data with proper space handling
     const sanitizedData = {
       name: sanitizeInput(name),
       email: sanitizeInput(email.toLowerCase()),
@@ -126,7 +131,7 @@ export async function POST(request) {
         ['Condo', 'Home', 'Land'].includes(type)
       ).slice(0, 3), // Limit to 3 types
       lookingFor: lookingFor,
-      message: sanitizeInput(message || ''),
+      message: sanitizeInput(message || ''), // This now preserves spaces properly
       timestamp: serverTimestamp(),
       status: 'new',
       metadata: {
@@ -136,6 +141,8 @@ export async function POST(request) {
         submittedAt: new Date().toISOString()
       }
     }
+
+    console.log('Sanitized data:', sanitizedData) // Debug log to check message field
 
     // Save to Firestore
     const docRef = await addDoc(collection(db, 'contactForms'), sanitizedData)

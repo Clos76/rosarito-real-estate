@@ -21,7 +21,7 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy", 
             value: `
               default-src 'self';
-              script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://maps.googleapis.com https://cdnjs.cloudflare.com;
+              script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://maps.googleapis.com https://cdnjs.cloudflare.com https://va.vercel-scripts.com;
               style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
               img-src 'self' data: blob: https://firebasestorage.googleapis.com https://rosaritoresorts.com https://maps.googleapis.com https://maps.gstatic.com;
               font-src 'self' https://fonts.gstatic.com;
@@ -99,7 +99,9 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: "Content-Security-Policy",
-            value: "default-src 'none'; frame-ancestors 'none';"
+            value: process.env.NODE_ENV === 'production'
+        ? "default-src 'none'; frame-ancestors 'none';"
+        : "default-src 'self' 'unsafe-inline' https:;"
           },
           {
             key: "X-Content-Type-Options",
