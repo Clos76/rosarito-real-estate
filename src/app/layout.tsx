@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
-import { Analytics } from "@vercel/analytics/next"; // <-- import Analytics
+import { Analytics } from "@vercel/analytics/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,7 +17,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Rosarito Real Estate | Beachfront Homes & Condos for Sale",
-  description: "Find your dream beachfront property in Rosarito, Playas de Tijuana, and Ensenada, Baja California. Buy, sell, rent, or finance homes and condos with Rosarito Resorts Real Estate.",
+  description:
+    "Find your dream beachfront property in Rosarito, Playas de Tijuana, and Ensenada, Baja California. Buy, sell, rent, or finance homes and condos with Rosarito Resorts Real Estate.",
 };
 
 export default function RootLayout({
@@ -25,13 +26,15 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  
+
   return (
     <html lang="en">
+      <head>
+      
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
-        {/* Vercel Analytics site-wide */}
+        <AuthProvider>{children}</AuthProvider>
         <Analytics />
       </body>
     </html>
