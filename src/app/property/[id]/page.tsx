@@ -14,9 +14,10 @@ import Amenities from "@/components/Amenities";
 import ImageCarousel from "@/components/ImageCarousel";
 import PropertyDetails from "@/components/PropertyDetails";
 import SimilarHomes from "@/components/SimilarHomes";
-import {Property} from "@/app/property/[id]/PropertyInterface"
+import { Property } from "@/app/property/[id]/PropertyInterface"
 import MortgageCalculator from "@/components/MortgageCalculator";
-
+import PropertyContactForm from "@/components/propertyContactForm/page"; // Import the new component
+import Image from "next/image";
 
 // Enhanced Property interface with all new fields
 
@@ -27,15 +28,10 @@ export default function PropertyDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState("overview");
-  const [showContactForm, setShowContactForm] = useState(false);
 
-  // Contact form state
-  const [contactForm, setContactForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    message: "I am interested in this property and would like more information."
-  });
+  // Updated state for contact forms
+  const [showContactForm, setShowContactForm] = useState(false);
+  const [formType, setFormType] = useState<'contact' | 'tour'>('contact');
 
   useEffect(() => {
     async function fetchProperty() {
@@ -67,7 +63,7 @@ export default function PropertyDetailsPage() {
   // Scroll spy for sticky navigation
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ["overview", "details", "location", "property-history", "schools", "similar-homes"];
+      const sections = ["overview", "description", "details", "location", "property-history", "schools", "similar-homes"];
       const scrollPosition = window.scrollY + 100;
 
       for (const section of sections) {
@@ -95,10 +91,20 @@ export default function PropertyDetailsPage() {
     }
   };
 
-  const handleContactSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Here you would implement the email functionality
-    alert("Contact form submitted! (Email functionality to be implemented)");
+  // Update your button handlers in the main page:
+
+  const handleContactAgent = () => {
+    setFormType('contact');
+    setShowContactForm(true);
+
+  };
+
+  const handleScheduleTour = () => {
+    setFormType('tour');
+    setShowContactForm(true);
+  };
+
+  const handleCloseForm = () => {
     setShowContactForm(false);
   };
 
@@ -132,7 +138,7 @@ export default function PropertyDetailsPage() {
   const propertyHistory = [
     { date: "2025-01-15", event: "Listed for rent", source: "Owner", price: property.price + 350 },
     { date: "2025-04-20", event: "Price reduced", source: "Owner", price: property.price + 150 },
-    { date: "2025-07-10", event: "Price reduced", source: "Owner", price: property.price  }
+    { date: "2025-07-10", event: "Price reduced", source: "Owner", price: property.price }
   ];
 
   const nearbySchools = [
@@ -232,18 +238,18 @@ export default function PropertyDetailsPage() {
             </div>
           </section>
 
-          
-         
-          <PropertyDetails property={property} /> 
-          
+
+
+          <PropertyDetails property={property} />
+
 
           {/* Amenities Section */}
-          <Amenities amenities={property.amenities}/>
+          <Amenities amenities={property.amenities} />
 
-         
+
           <section id="location" className="mb-12">
-             <h2 className="text-2xl font-bold mb-6">Location & Neighborhood</h2>
-             {/* Location Section - Enhanced with Interactive Map */}
+            <h2 className="text-2xl font-bold mb-6">Location & Neighborhood</h2>
+            {/* Location Section - Enhanced with Interactive Map */}
 
             {/* Property Location Map */}
             {property.lat && property.lng ? (
@@ -318,12 +324,12 @@ export default function PropertyDetailsPage() {
             </div>
 
             {/* Mortgage Calculator */}
-            <MortgageCalculator price = {property.price}/>
+            <MortgageCalculator price={property.price} />
 
           </section>
 
           {/* Property History Section */}
-          <PropertyHistory history={propertyHistory}/>
+          <PropertyHistory history={propertyHistory} />
 
           {/* Schools Section */}
           <section id="schools" className="mb-12">
@@ -350,38 +356,50 @@ export default function PropertyDetailsPage() {
           </section>
 
           {/* Similar Homes Section */}
-          <SimilarHomes currentPropertyId={property.id} propertyType={property.propertyType} /> 
+          <SimilarHomes currentPropertyId={property.id} propertyType={property.propertyType} />
         </div>
 
         {/* Sidebar */}
         <div className="lg:col-span-1">
           <div className="sticky top-24 space-y-6">
             {/* Listing Agent */}
+           
+
+            {/* Listing Agent */}
             <div className="bg-white border border-gray-200 rounded-lg p-6">
               <h3 className="text-lg font-semibold mb-4">Listing Agent</h3>
-              <div className="flex items-start space-x-4 mb-4">
-                <div className="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center">
-                  <span className="text-2xl">👤</span>
+              <div className="w-16 h-16 relative">
+                  <Image
+                    src="/profilePicture.png"  // local file in /public
+                    alt="Realtor"
+                    fill
+                    className="rounded-full object-cover"
+                  />
                 </div>
+              <div className="flex items-start space-x-4 mb-4">
+                
                 <div>
                   <h4 className="font-semibold">{property.listedBy.name}</h4>
                   <p className="text-sm text-gray-600">📞 {property.listedBy.contact}</p>
                   <div className="mt-2 space-y-1">
-                    <p className="text-sm text-gray-500">📧{property.listedBy.email}</p>
-                    
+                    <p className="text-sm text-gray-500">📧 {property.listedBy.email}</p>
                   </div>
                 </div>
               </div>
               <button
-                onClick={() => setShowContactForm(!showContactForm)}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium mb-2"
+                onClick={handleContactAgent}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium mb-2 transition-colors"
               >
                 Contact Agent
               </button>
-              <button className="w-full border border-gray-300 hover:bg-gray-50 text-gray-700 py-3 px-4 rounded-lg font-medium">
+              <button
+                onClick={handleScheduleTour}
+                className="w-full border border-gray-300 hover:bg-gray-50 text-gray-700 py-3 px-4 rounded-lg font-medium transition-colors"
+              >
                 Schedule Tour
               </button>
             </div>
+
 
             {/* Quick Facts Card */}
             {(property.publicFacts?.mlsNumber || property.publicFacts?.daysOnMarket) && (
@@ -416,54 +434,37 @@ export default function PropertyDetailsPage() {
               </div>
             )}
 
-            {/* Contact Form */}
-            {showContactForm && (
-              <div className="bg-white border border-gray-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4">Contact Form</h3>
-                <form onSubmit={handleContactSubmit} className="space-y-4">
-                  <input
-                    type="text"
-                    placeholder="Your Name"
-                    value={contactForm.name}
-                    onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
-                  <input
-                    type="email"
-                    placeholder="Your Email"
-                    value={contactForm.email}
-                    onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
-                  <input
-                    type="tel"
-                    placeholder="Your Phone"
-                    value={contactForm.phone}
-                    onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  />
-                  <textarea
-                    placeholder="Message"
-                    rows={4}
-                    value={contactForm.message}
-                    onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
-                  <button
-                    type="submit"
-                    className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg font-medium"
-                  >
-                    Send Message
-                  </button>
-                </form>
-              </div>
-            )}
           </div>
         </div>
       </div>
+
+      {/* Contact Form Modal - Only render when showContactForm is true */}
+      {showContactForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="relative bg-white rounded-lg shadow-xl max-w-lg w-full p-6">
+            <button
+              onClick={handleCloseForm}
+              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+            >
+              ✕
+            </button>
+
+            <PropertyContactForm
+              propertyId={property.id}
+              propertyTitle={property.title}
+              propertyAddress={property.address}
+              propertyPrice={property.price}
+              agentName={property.listedBy.name}
+              agentEmail={property.listedBy.email}
+              agentContact={property.listedBy.contact}
+              onClose={handleCloseForm}
+              formType={formType}
+            />
+          </div>
+        </div>
+      )}
+
+
     </div>
   );
 }
