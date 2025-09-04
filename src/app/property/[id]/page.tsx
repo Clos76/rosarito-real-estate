@@ -141,11 +141,11 @@ export default function PropertyDetailsPage() {
     { date: "2025-07-10", event: "Price reduced", source: "Owner", price: property.price }
   ];
 
-  const nearbySchools = [
-    { name: "Lincoln Elementary", rating: 9, distance: "0.3 miles", type: "Elementary" },
-    { name: "Roosevelt Middle School", rating: 8, distance: "0.7 miles", type: "Middle" },
-    { name: "Washington High School", rating: 7, distance: "1.2 miles", type: "High" }
-  ];
+  // const nearbySchools = [
+  //   { name: "Lincoln Elementary", rating: 9, distance: "0.3 miles", type: "Elementary" },
+  //   { name: "Roosevelt Middle School", rating: 8, distance: "0.7 miles", type: "Middle" },
+  //   { name: "Washington High School", rating: 7, distance: "1.2 miles", type: "High" }
+  // ];
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8">
@@ -332,7 +332,7 @@ export default function PropertyDetailsPage() {
           <PropertyHistory history={propertyHistory} />
 
           {/* Schools Section */}
-          <section id="schools" className="mb-12">
+          {/* <section id="schools" className="mb-12">
             <h2 className="text-2xl font-bold mb-6">Schools Nearby</h2>
             <div className="space-y-4">
               {nearbySchools.map((school, index) => (
@@ -353,7 +353,7 @@ export default function PropertyDetailsPage() {
                 </div>
               ))}
             </div>
-          </section>
+          </section> */}
 
           {/* Similar Homes Section */}
           <SimilarHomes currentPropertyId={property.id} propertyType={property.propertyType} />
