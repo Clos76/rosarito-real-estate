@@ -30,16 +30,16 @@ export default function Header() {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-4 text-sm">
-          <Link href="/buy" className="px-3 py-1 font-bold rounded-md transition-all duration-200 hover:bg-gray-100 hover:text-blue-500 hover:shadow-md">
+          <Link href="/#" className="px-3 py-1 font-bold rounded-md transition-all duration-200 hover:bg-gray-100 hover:text-blue-500 hover:shadow-md">
             Buy
           </Link>
-          <Link href="/rent" className="px-3 py-1 font-bold rounded-md transition-all duration-200 hover:bg-gray-100 hover:text-blue-500 hover:shadow-md">
+          <Link href="/#" className="px-3 py-1 font-bold rounded-md transition-all duration-200 hover:bg-gray-100 hover:text-blue-500 hover:shadow-md">
             Rent
           </Link>
-          <Link href="/sell" className="px-3 py-1 font-bold rounded-md transition-all duration-200 hover:bg-gray-100 hover:text-blue-500 hover:shadow-md">
+          <Link href="/#" className="px-3 py-1 font-bold rounded-md transition-all duration-200 hover:bg-gray-100 hover:text-blue-500 hover:shadow-md">
             Sell
           </Link>
-          <Link href="/fsbo" className="px-3 py-1 font-bold rounded-md transition-all duration-200 hover:bg-gray-100 hover:text-blue-500 hover:shadow-md">
+          <Link href="/#" className="px-3 py-1 font-bold rounded-md transition-all duration-200 hover:bg-gray-100 hover:text-blue-500 hover:shadow-md">
             FSBO
           </Link>
 
