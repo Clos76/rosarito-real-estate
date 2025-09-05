@@ -46,39 +46,38 @@ export default function PropertyContactForm({
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState('')
 
-  // Animation and scroll lock effects
-  useEffect(() => {
-    // Disable body scroll
-    document.body.style.overflow = 'hidden'
+// Animation and scroll lock effects
+useEffect(() => {
+  // Disable body scroll
+  document.body.style.overflow = 'hidden'
 
-    // Trigger animation
-    const timer = setTimeout(() => setIsVisible(true), 10)
+  // Trigger animation
+  const timer = setTimeout(() => setIsVisible(true), 10)
 
-    return () => {
-      document.body.style.overflow = 'unset'
-      clearTimeout(timer)
-    }
-  }, [])
+  return () => {
+    document.body.style.overflow = 'unset'
+    clearTimeout(timer)
+  }
+}, [])
 
-  // Inside PropertyContactForm
-  useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        handleClose()
-      }
-    }
-
-    window.addEventListener("keydown", handleEsc)
-    return () => window.removeEventListener("keydown", handleEsc)
-  }, [])
-
-
- const handleClose = useCallback(() => {
+const handleClose = useCallback(() => {
   setIsVisible(false)
   setTimeout(() => {
     onClose()
   }, 300) // Wait for animation to complete
 }, [onClose]) // only depends on onClose
+
+// Inside PropertyContactForm
+useEffect(() => {
+  const handleEsc = (e: KeyboardEvent) => {
+    if (e.key === "Escape") {
+      handleClose()
+    }
+  }
+
+  window.addEventListener("keydown", handleEsc)
+  return () => window.removeEventListener("keydown", handleEsc)
+}, [handleClose])
 
   // Sanitization and validation functions
   const sanitizeInput = (input: string): string => {

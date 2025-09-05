@@ -9,6 +9,7 @@ const scriptSrc = [
   "https://www.google-analytics.com",
   "https://maps.googleapis.com",
   "https://cdnjs.cloudflare.com",
+  "https://apis.google.com",
   "https://va.vercel-scripts.com",
   ...(isDev ? ["'unsafe-eval'"] : []), // ✅ allow eval only in dev
 ].join(" ");

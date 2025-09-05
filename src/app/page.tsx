@@ -6,6 +6,7 @@ import ContactForm from "@/components/layout/MainContactForm";
 import Head from "next/head";
 import Footer from "@/components/layout/Footer";
 
+
 export default function Home() {
   return (
     <>
@@ -118,6 +119,7 @@ export default function Home() {
           <RecommendedSection />
         </section>
 
+      
         {/* How Can We Help You */}
         <section aria-labelledby="how-we-help" className="mt-12">
           <h2 id="how-we-help" className="text-3xl font-bold mb-6 text-center">
