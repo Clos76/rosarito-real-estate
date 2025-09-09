@@ -4,7 +4,7 @@ const config = {
   generateRobotsTxt: true,
   sitemapSize: 5000,
   changefreq: 'daily',
-  priority: 0.7,
+  priority: 1.0,
   exclude: ['/admin/*', '/api/*', '/functions/*'],
 };
 
